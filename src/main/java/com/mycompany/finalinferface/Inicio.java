@@ -1,5 +1,16 @@
 package com.mycompany.finalinferface;
 
+import com.google.api.gax.paging.Page;
+import com.google.cloud.storage.Blob;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.util.List;
@@ -9,6 +20,8 @@ import java.util.ArrayList;
 import javax.swing.ImageIcon;
 import javax.swing.JList;
 import javax.swing.JScrollBar;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageOptions;
 
 /**
  *
@@ -16,13 +29,144 @@ import javax.swing.JScrollBar;
  */
 public class Inicio extends javax.swing.JFrame {
 
+    public static void downloadObject(
+            String projectId, String bucketName, String objectName, String destFilePath) {
+        // The ID of your GCP project
+        // String projectId = "your-project-id";
+
+        // The ID of your GCS bucket
+        // String bucketName = "your-unique-bucket-name";
+        // The ID of your GCS object
+        // String objectName = "your-object-name";
+        // The path to which the file should be downloaded
+        // String destFilePath = "/local/path/to/file.txt";
+        Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
+
+        Blob blob = storage.get(BlobId.of(bucketName, objectName));
+        blob.downloadTo(Paths.get(destFilePath));
+
+        System.out.println(
+                "Downloaded object "
+                + objectName
+                + " from bucket name "
+                + bucketName
+                + " to "
+                + destFilePath);
+    }
+
+    public static Page<Blob> listObjectsWithPrefix(String projectId, String bucketName, String directoryPrefix) {
+        // The ID of your GCP project
+        // String projectId = "your-project-id";
+
+        // The ID of your GCS bucket
+        // String bucketName = "your-unique-bucket-name";
+        // The directory prefix to search for
+        // String directoryPrefix = "myDirectory/"
+        Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
+        /**
+         * Using the Storage.BlobListOption.currentDirectory() option here
+         * causes the results to display in a "directory-like" mode, showing
+         * what objects are in the directory you've specified, as well as what
+         * other directories exist in that directory. For example, given these
+         * blobs:
+         *
+         * <p>
+         * a/1.txt a/b/2.txt a/b/3.txt
+         *
+         * <p>
+         * If you specify prefix = "a/" and don't use
+         * Storage.BlobListOption.currentDirectory(), you'll get back:
+         *
+         * <p>
+         * a/1.txt a/b/2.txt a/b/3.txt
+         *
+         * <p>
+         * However, if you specify prefix = "a/" and do use
+         * Storage.BlobListOption.currentDirectory(), you'll get back:
+         *
+         * <p>
+         * a/1.txt a/b/
+         *
+         * <p>
+         * Because a/1.txt is the only file in the a/ directory and a/b/ is a
+         * directory inside the /a/ directory.
+         */
+        Page<Blob> blobs
+                = storage.list(
+                        bucketName,
+                        Storage.BlobListOption.prefix(directoryPrefix),
+                        Storage.BlobListOption.currentDirectory());
+        return blobs;
+    }
+
+    public static void uploadObject(
+            String projectId, String bucketName, String objectName, String filePath) throws IOException {
+        // The ID of your GCP project
+        // String projectId = "your-project-id";
+
+        // The ID of your GCS bucket
+        // String bucketName = "your-unique-bucket-name";
+        // The ID of your GCS object
+        // String objectName = "your-object-name";
+        // The path to your file to upload
+        // String filePath = "path/to/your/file"
+        Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
+        BlobId blobId = BlobId.of(bucketName, objectName);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId).build();
+
+        // Optional: set a generation-match precondition to avoid potential race
+        // conditions and data corruptions. The request returns a 412 error if the
+        // preconditions are not met.
+        Storage.BlobWriteOption precondition;
+        if (storage.get(bucketName, objectName) == null) {
+            // For a target object that does not yet exist, set the DoesNotExist precondition.
+            // This will cause the request to fail if the object is created before the request runs.
+            precondition = Storage.BlobWriteOption.doesNotExist();
+        } else {
+            // If the destination already exists in your bucket, instead set a generation-match
+            // precondition. This will cause the request to fail if the existing object's generation
+            // changes before the request runs.
+            //storage.get(bucketName, objectName).getGeneration()
+            precondition
+                    = Storage.BlobWriteOption.generationMatch();
+        }
+        storage.createFrom(blobInfo, Paths.get(filePath)/*, precondition*/);
+
+        System.out.println(
+                "File " + filePath + " uploaded to bucket " + bucketName + " as " + objectName);
+    }
+
+    public static Page<Blob> listObjects(String projectId, String bucketName) {
+        // The ID of your GCP project
+        // String projectId = "your-project-id";
+
+        // The ID of your GCS bucket
+        // String bucketName = "your-unique-bucket-name";
+        //acceso servicio 
+        Storage storage = StorageOptions.newBuilder().setProjectId(projectId).build().getService();
+        Page<Blob> blobs = (Page<Blob>) storage.list(bucketName);
+        return blobs;
+        /*for (Blob blob : blobs.iterateAll()) {
+            System.out.println(blob.getName());
+        }*/
+    }
+
+    //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
+    public static void prepareEnvironment() throws IOException {
+        String variable = "GOOGLE_APPLICATION_CREDENTIALS";
+        String valor = new File("src\\main\\resources\\aerial-citron-437514-t6-a89b0b905843.json").getPath();
+        ProcessBuilder pb = new ProcessBuilder("cmd", "/c", "set", variable + "=" + valor).inheritIO();
+        Process p = pb.start();
+    }
+
     /**
      * Creates new form Inicio
      */
     public Inicio() {
         initComponents();
         this.setSize(500, 400);
-        jDialog1.setSize(300, 300);
+        paginaSubir.setSize(597, 347);
+        paginaSubir.setVisible(false);
         this.setIconImage(new ImageIcon("C:\\Users\\DAM2\\Downloads\\FINALINFERFACE\\src\\main\\java\\resources\\logoSimpleSinFondoSinLetras.png").getImage());
         //stackoverflow
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -32,25 +176,41 @@ public class Inicio extends javax.swing.JFrame {
         //logos barra superior
         jToggleButton1.setIcon(new ImageIcon(new ImageIcon(filePath).getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT)));
         
-        //chapuza para rellenar la jlist con el nombre de los ficheros
-        File[] listaArchivos = new File("C:/").listFiles();
-        String[] listaNombresArchivos = new String[listaArchivos.length];
-        for (int i = 0; i < listaArchivos.length; i++) {
-            listaNombresArchivos[i] = listaArchivos[i].getName();
-        }
         
-        //modifico codigo nativo
+        
+        
+        
+        //LLENAR LA LISTA CON LOS FICHEROS DE LA RAIZ DEL BUCKET
+        Page<Blob> ficherosCloud = Inicio.listObjects("aerial-citron-437514-t6", "primerapruebaentercloud");
+
+        int numBlobs = 0;
+        for (Blob blob : ficherosCloud.iterateAll()) {
+            numBlobs++;
+        }
+
+        String[] listaNombresArchivos = new String[numBlobs];
+
+        int i = 0;
+        for (Blob blob : ficherosCloud.iterateAll()) {
+            listaNombresArchivos[i] = blob.getName().replaceAll(".*/", "");
+
+            i++;
+        }
+
+        //modifico codigo nativo para asignarle el valor segun los ficheros del bucket
         jList1.setModel(new javax.swing.AbstractListModel<String>() {
             //String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() {
+
                 return listaNombresArchivos.length;
+
             }
 
             public String getElementAt(int i) {
                 return listaNombresArchivos[i];
             }
         });
-        
+
         jList1.setCellRenderer(new CustomRenderer());
         //chatGPT
         JScrollBar verticalScrollBar = jScrollPane1.getVerticalScrollBar();
@@ -73,68 +233,40 @@ public class Inicio extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jDialog1 = new javax.swing.JDialog();
-        jPanel4 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jPanel5 = new javax.swing.JPanel();
+        paginaSubir = new javax.swing.JFrame();
+        jFileChooser2 = new javax.swing.JFileChooser();
         jPanel1 = new javax.swing.JPanel();
         jPanel2 = new javax.swing.JPanel();
         jToggleButton1 = new javax.swing.JToggleButton();
+        jLabel1 = new javax.swing.JLabel();
         jPanel3 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        botonSubir = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
 
-        jLabel1.setText("LOS GENIOS HACEN ESO");
+        paginaSubir.setSize(new java.awt.Dimension(597, 347));
 
-        jLabel2.setText("jLabel2");
-
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
-                .addContainerGap(50, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addContainerGap(50, Short.MAX_VALUE))
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel2)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        javax.swing.GroupLayout paginaSubirLayout = new javax.swing.GroupLayout(paginaSubir.getContentPane());
+        paginaSubir.getContentPane().setLayout(paginaSubirLayout);
+        paginaSubirLayout.setHorizontalGroup(
+            paginaSubirLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 597, Short.MAX_VALUE)
+            .addGroup(paginaSubirLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(paginaSubirLayout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(jFileChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addContainerGap(30, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
-                .addComponent(jLabel2)
-                .addContainerGap())
-        );
-
-        javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
-        jDialog1.getContentPane().setLayout(jDialog1Layout);
-        jDialog1Layout.setHorizontalGroup(
-            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jDialog1Layout.setVerticalGroup(
-            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
+        paginaSubirLayout.setVerticalGroup(
+            paginaSubirLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 347, Short.MAX_VALUE)
+            .addGroup(paginaSubirLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(paginaSubirLayout.createSequentialGroup()
+                    .addGap(0, 0, Short.MAX_VALUE)
+                    .addComponent(jFileChooser2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE)))
         );
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -152,12 +284,18 @@ public class Inicio extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setFont(new java.awt.Font("Nunito Medium", 0, 15)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("Inicio");
+
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel2Layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
+                .addContainerGap()
+                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         jPanel2Layout.setVerticalGroup(
@@ -166,16 +304,23 @@ public class Inicio extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(jToggleButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addGap(19, 19, 19))
         );
 
         jPanel3.setBackground(new java.awt.Color(2, 34, 57));
 
         jButton1.setBackground(new java.awt.Color(2, 34, 57));
+        jButton1.setFont(new java.awt.Font("Nunito Medium", 0, 13)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Inicio");
+        jButton1.setToolTipText("");
         jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         jButton2.setBackground(new java.awt.Color(2, 34, 57));
+        jButton2.setFont(new java.awt.Font("Nunito Medium", 0, 13)); // NOI18N
         jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("Favoritos");
         jButton2.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
@@ -185,14 +330,15 @@ public class Inicio extends javax.swing.JFrame {
             }
         });
 
-        jButton3.setBackground(new java.awt.Color(2, 34, 57));
-        jButton3.setForeground(new java.awt.Color(255, 255, 255));
-        jButton3.setText("Subir");
-        jButton3.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-        jButton3.setMaximumSize(new java.awt.Dimension(78, 73));
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+        botonSubir.setBackground(new java.awt.Color(2, 34, 57));
+        botonSubir.setFont(new java.awt.Font("Nunito Medium", 0, 13)); // NOI18N
+        botonSubir.setForeground(new java.awt.Color(255, 255, 255));
+        botonSubir.setText("Subir");
+        botonSubir.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        botonSubir.setMaximumSize(new java.awt.Dimension(78, 73));
+        botonSubir.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                botonSubirMouseClicked(evt);
             }
         });
 
@@ -201,13 +347,13 @@ public class Inicio extends javax.swing.JFrame {
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel3Layout.createSequentialGroup()
-                .addContainerGap(75, Short.MAX_VALUE)
+                .addContainerGap(72, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addGap(18, 18, Short.MAX_VALUE)
                 .addComponent(jButton2)
                 .addGap(18, 18, Short.MAX_VALUE)
-                .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(61, Short.MAX_VALUE))
+                .addComponent(botonSubir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(58, Short.MAX_VALUE))
         );
         jPanel3Layout.setVerticalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -216,7 +362,7 @@ public class Inicio extends javax.swing.JFrame {
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2)
-                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(botonSubir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(16, Short.MAX_VALUE))
         );
 
@@ -247,7 +393,9 @@ public class Inicio extends javax.swing.JFrame {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 275, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
+                .addGap(0, 0, 0)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
 
@@ -264,20 +412,52 @@ public class Inicio extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+    
+    private void refreshLista(String dir){
+        Page<Blob> ficherosCloud = Inicio.listObjectsWithPrefix("aerial-citron-437514-t6", "primerapruebaentercloud", dir);
 
+        int numBlobs = 0;
+        for (Blob blob : ficherosCloud.iterateAll()) {
+            numBlobs++;
+        }
+
+        String[] listaNombresArchivos = new String[numBlobs];
+
+        int i = 0;
+        for (Blob blob : ficherosCloud.iterateAll()) {
+            listaNombresArchivos[i] = blob.getName().replaceAll(".*/", "");
+
+            i++;
+        }
+
+        //modifico codigo nativo para asignarle el valor segun los ficheros del bucket
+        jList1.setModel(new javax.swing.AbstractListModel<String>() {
+            //String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() {
+
+                return listaNombresArchivos.length;
+
+            }
+
+            public String getElementAt(int i) {
+                return listaNombresArchivos[i];
+            }
+        });
+
+        jList1.setCellRenderer(new CustomRenderer());
+    }
+    
     private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
         // TODO add your handling code here:
         JList list = (JList) evt.getSource();
         if (evt.getClickCount() == 2) {
+            /*
             jDialog1.setVisible(true);
             jLabel2.setText(jList1.getSelectedValue());
+             */
         }
 
     }//GEN-LAST:event_jList1MouseClicked
-
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
@@ -292,8 +472,17 @@ public class Inicio extends javax.swing.JFrame {
         } else {
             jPanel4.setVisible(false);
         }
-        */
+         */
     }//GEN-LAST:event_jToggleButton1MouseClicked
+
+    private void botonSubirMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_botonSubirMouseClicked
+        // TODO add your handling code here:
+        if (paginaSubir.isVisible()) {
+            paginaSubir.setVisible(false);
+        } else {
+            paginaSubir.setVisible(true);
+        }
+    }//GEN-LAST:event_botonSubirMouseClicked
 
     /**
      * @param args the command line arguments
@@ -331,19 +520,17 @@ public class Inicio extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton botonSubir;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JDialog jDialog1;
+    private javax.swing.JFileChooser jFileChooser2;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JList<String> jList1;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JPanel jPanel4;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JToggleButton jToggleButton1;
+    private javax.swing.JFrame paginaSubir;
     // End of variables declaration//GEN-END:variables
 }

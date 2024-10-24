@@ -11,22 +11,18 @@ public class CustomRenderer extends DefaultListCellRenderer {
         // Crear un panel con un JLabel y un JButton
         JPanel panel = new JPanel(new BorderLayout());
         JLabel label = new JLabel(value.toString());
-        JComboBox desplegable = new JComboBox();
-        desplegable.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
-
-        /*
-        JButton button = new JButton("Acción");
-        
-        button.setText("");
+        JButton desplegable = new JButton("Acción");
+        label.setFont(new java.awt.Font("Nunito Medium", 0, 13));
+        desplegable.setFont(new java.awt.Font("Nunito Medium", 0, 13));
+        desplegable.setText("");
         ImageIcon iconoMenuBoton = new ImageIcon("C:/Users/DAM2/Downloads/FINALINFERFACE/src/main/java/resources/botonMenu.png");
-        button.setIcon(iconoMenuBoton);
-        button.setBackground(new java.awt.Color(53, 114, 239));
-        button.setPreferredSize(new Dimension(40, 40));
+        desplegable.setIcon(iconoMenuBoton);
+        desplegable.setBackground(new java.awt.Color(53, 114, 239));
+        desplegable.setPreferredSize(new Dimension(40, 40));
         
         // Añadir el label y el botón al panel
         
-        panel.add(button, BorderLayout.EAST);
-        */
+        
         panel.add(label, BorderLayout.WEST);
         panel.add(desplegable, BorderLayout.EAST);
         // Configurar el fondo del panel dependiendo de si está seleccionado
