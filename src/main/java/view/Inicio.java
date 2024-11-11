@@ -1,4 +1,4 @@
-package com.mycompany.finalinferface;
+package view;
 
 import com.google.api.gax.paging.Page;
 import com.google.cloud.storage.Blob;
@@ -181,7 +181,7 @@ public class Inicio extends javax.swing.JFrame {
         
         
         //LLENAR LA LISTA CON LOS FICHEROS DE LA RAIZ DEL BUCKET
-        Page<Blob> ficherosCloud = Inicio.listObjects("aerial-citron-437514-t6", "primerapruebaentercloud");
+        Page<Blob> ficherosCloud = Inicio.listObjects("NOMBRE-PROYECTO-GCP", "NOMBRE-BUCKET-USUARIO");
 
         int numBlobs = 0;
         for (Blob blob : ficherosCloud.iterateAll()) {
@@ -413,7 +413,7 @@ public class Inicio extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
-    private void refreshLista(String dir){
+   /* private void refreshLista(String dir){
         Page<Blob> ficherosCloud = Inicio.listObjectsWithPrefix("aerial-citron-437514-t6", "primerapruebaentercloud", dir);
 
         int numBlobs = 0;
@@ -425,7 +425,7 @@ public class Inicio extends javax.swing.JFrame {
 
         int i = 0;
         for (Blob blob : ficherosCloud.iterateAll()) {
-            listaNombresArchivos[i] = blob.getName().replaceAll(".*/", "");
+            listaNombresArchivos[i] = blob.getName().replaceAll("/", "");
 
             i++;
         }
@@ -446,6 +446,7 @@ public class Inicio extends javax.swing.JFrame {
 
         jList1.setCellRenderer(new CustomRenderer());
     }
+*/
     
     private void jList1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jList1MouseClicked
         // TODO add your handling code here:

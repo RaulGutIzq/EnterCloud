@@ -1,4 +1,4 @@
-package com.mycompany.finalinferface;
+package view;
 
 import java.awt.Color;
 import java.awt.Dimension;
