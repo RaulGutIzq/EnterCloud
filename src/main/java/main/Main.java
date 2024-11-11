@@ -16,5 +16,7 @@ public class Main {
         ClientesDAO model = new ClientesDAO("Clientes.dat","r");
         Login view = new Login();
         LoginController controlador = new LoginController(model,view);
+        view.setVisible(true);
+
     }
 }
