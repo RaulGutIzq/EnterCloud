@@ -39,12 +39,12 @@ public class Inicio extends javax.swing.JFrame {
         this.setSize(500, 400);
         paginaSubir.setSize(597, 347);
         paginaSubir.setVisible(false);
-        this.setIconImage(new ImageIcon("C:\\Users\\DAM2\\Downloads\\FINALINFERFACE\\src\\main\\java\\resources\\logoSimpleSinFondoSinLetras.png").getImage());
+        this.setIconImage(new ImageIcon("/resources/logoSimpleSinFondoSinLetras.png").getImage());
         //stackoverflow
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width / 2 - this.getSize().width / 2,
                 dim.height / 2 - this.getSize().height / 2);
-        String filePath = "C:\\Users\\DAM2\\Downloads\\FINALINFERFACE\\src\\main\\java\\resources\\botonMenu.png";
+        String filePath = "/resources/botonMenu.png";
         //logos barra superior
         botonMenuSuperior.setIcon(new ImageIcon(new ImageIcon(filePath).getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT)));
         
@@ -233,40 +233,6 @@ public class Inicio extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(Inicio.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Inicio().setVisible(true);
-            }
-        });
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton botonFavoritos;
