@@ -28,6 +28,7 @@ public class LoginController {
                 if (checkUser(vista.userForm.getText(), new String(vista.passForm.getPassword()))) {
                     vista.dispose();
                     Inicio inicio = new Inicio();
+                    new InicioController(inicio);
                     inicio.setVisible(true);
                 } else {
                     vista.mensajeError.setVisible(true);
