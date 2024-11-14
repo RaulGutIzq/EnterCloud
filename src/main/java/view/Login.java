@@ -1,18 +1,14 @@
 package view;
 
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.Toolkit;
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 
 /**
  *
  * @author DaniF
  */
 public class Login extends javax.swing.JFrame {
-
-    
 
     /**
      * Creates new form Pagina
@@ -21,13 +17,19 @@ public class Login extends javax.swing.JFrame {
         initComponents();
         this.mensajeError.setVisible(false);
         this.setSize(500, 400);
-        this.setIconImage(new ImageIcon(getClass().getResource("/resources/logoSimpleConFondoConNombre.png")).getImage());
+
+        // Establecer el icono de la ventana
+        this.setIconImage(new ImageIcon(getClass().getResource("/logoSimpleConFondoConNombrePequenio.png")).getImage());
+
+        // Centrar la ventana en la pantalla
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width / 2 - this.getSize().width / 2,
                 dim.height / 2 - this.getSize().height / 2);
-        logo.setIcon(new ImageIcon(new ImageIcon(getClass().getResource("/resources/logoSimpleConFondoConNombre.png"))
-                .getImage()
-                .getScaledInstance(150, 150, Image.SCALE_DEFAULT)));
+
+        // Establecer el icono escalado para el componente "logo"
+        logo.setIcon(new ImageIcon(new ImageIcon(getClass().getResource("/logoSimpleConFondoConNombrePequenio.png"))
+                .getImage()));
+
     }
 
     /**
@@ -54,20 +56,24 @@ public class Login extends javax.swing.JFrame {
         jPanel1.setBackground(new java.awt.Color(53, 114, 239));
 
         jButton1.setBackground(new java.awt.Color(2, 34, 57));
+        jButton1.setFont(new java.awt.Font("Nunito Medium", 0, 15)); // NOI18N
         jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Login");
         jButton1.setToolTipText("Acceder a Entercloud");
         jButton1.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
+        userForm.setFont(new java.awt.Font("Nunito Medium", 0, 12)); // NOI18N
         userForm.setForeground(new java.awt.Color(2, 34, 57));
         userForm.setText("Usuario");
         userForm.setToolTipText("Introduzca su usuario");
 
+        passForm.setFont(new java.awt.Font("Nunito Medium", 0, 12)); // NOI18N
         passForm.setForeground(new java.awt.Color(2, 34, 57));
         passForm.setText("jPasswordField1");
         passForm.setToolTipText("Introduzca su contraseña");
 
         mensajeError.setBackground(new java.awt.Color(2, 34, 57));
+        mensajeError.setFont(new java.awt.Font("Nunito SemiBold", 0, 12)); // NOI18N
         mensajeError.setForeground(new java.awt.Color(255, 0, 51));
         mensajeError.setText("USUARIO O CONTRASEÑA INCORRECTOS");
 
@@ -76,33 +82,36 @@ public class Login extends javax.swing.JFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(46, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                        .addComponent(passForm, javax.swing.GroupLayout.DEFAULT_SIZE, 105, Short.MAX_VALUE)
-                        .addComponent(userForm))
                     .addComponent(logo)
                     .addComponent(mensajeError))
-                .addContainerGap(48, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(121, 121, 121)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(passForm, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(userForm, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                .addContainerGap(55, Short.MAX_VALUE)
+                .addContainerGap(54, Short.MAX_VALUE)
                 .addComponent(logo)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 90, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 83, Short.MAX_VALUE)
                 .addComponent(userForm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(18, 18, Short.MAX_VALUE)
                 .addComponent(passForm, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(43, 43, 43)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 42, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(mensajeError)
-                .addContainerGap(46, Short.MAX_VALUE))
+                .addContainerGap(45, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());

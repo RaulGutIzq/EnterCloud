@@ -1,27 +1,9 @@
 package view;
 
-import com.google.api.gax.paging.Page;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.Paths;
 import java.awt.Dimension;
-import java.awt.Image;
-import java.util.List;
 import java.awt.Toolkit;
-import java.io.File;
-import java.util.ArrayList;
 import javax.swing.ImageIcon;
-import javax.swing.JList;
 import javax.swing.JScrollBar;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 
 /**
  *
@@ -46,7 +28,7 @@ public class Inicio extends javax.swing.JFrame {
                 dim.height / 2 - this.getSize().height / 2);
         String filePath = "/resources/botonMenu.png";
         //logos barra superior
-        botonMenuSuperior.setIcon(new ImageIcon(new ImageIcon(filePath).getImage().getScaledInstance(50, 50, Image.SCALE_DEFAULT)));
+        botonMenuSuperior.setIcon(new ImageIcon(new ImageIcon(filePath).getImage()));
         
         
         
