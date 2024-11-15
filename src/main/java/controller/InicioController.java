@@ -8,7 +8,10 @@ import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import javax.swing.JList;
 import view.CustomRenderer;
 import view.Inicio;
@@ -20,10 +23,22 @@ import view.Inicio;
 public class InicioController {
 
     private Inicio vista;
+    private String dirActual;
 
     public InicioController(Inicio vista) {
         this.vista = vista;
 
+        /*
+        To do:
+        - Aqui se sustituira listaObjetosLocales() por el metodo que listara la raiz del bucket del user
+        - Hacer funcional el boton de los ficheros para que se pueda descargar (usar downloadObject())
+        - Hacer escuchador de los elementos de la lista para que, si es un directorio
+            inicie de nuevo inicio pero listando con la ruta de ese directorio en el bucket
+        - Hacer funcional el boton del panel superior para que depliegue el menu
+            - ver almacenamiento disponible
+            - logout
+        - Modificar metodo para hacer funcional metodoSubir
+         */
         listaObjetosLocales();
 
         vista.botonMenuSuperior.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -219,39 +234,14 @@ public class InicioController {
         });
     }
 
-    /*
-    
-        //LLENAR LA LISTA CON LOS FICHEROS DE LA RAIZ DEL BUCKET
-        Page<Blob> ficherosCloud = Inicio.listObjects("NOMBRE-PROYECTO-GCP", "NOMBRE-BUCKET-USUARIO");
-
-        int numBlobs = 0;
-        for (Blob blob : ficherosCloud.iterateAll()) {
-            numBlobs++;
-        }
-
-        String[] listaNombresArchivos = new String[numBlobs];
-
-        int i = 0;
-        for (Blob blob : ficherosCloud.iterateAll()) {*/
-    //            listaNombresArchivos[i] = blob.getName().replaceAll(".*/", "");
-    /*
-            i++;
-        }
-
-        //modifico codigo nativo para asignarle el valor segun los ficheros del bucket
-        jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            //String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() {
-
-                return listaNombresArchivos.length;
-
+    private void subirArchivos(File[] selectedFiles) {
+        for (File selectedFile : selectedFiles) {
+            try {
+                Files.copy(Path.of(selectedFile.getAbsolutePath()), Path.of(dirActual + "/".replace('/', File.separatorChar) + selectedFile.getName()), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException ex) {
+                System.out.println(ex);
             }
+        }
+    }
 
-            public String getElementAt(int i) {
-                return listaNombresArchivos[i];
-            }
-        });
-
-        jList1.setCellRenderer(new CustomRenderer());
-     */
 }
