@@ -14,10 +14,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import model.Cliente;
 import view.CustomRenderer;
 import view.Inicio;
 
@@ -27,10 +32,11 @@ import view.Inicio;
  */
 public class InicioController {
 
+    private static final String RAIZBUCKET = "E:/DAM2/DI";
     private Inicio vista;
     private String dirActual;
 
-    public InicioController(Inicio vista) {
+    public InicioController(Inicio vista, Cliente c) {
         this.vista = vista;
 
         /*
@@ -44,45 +50,46 @@ public class InicioController {
             - logout
         - Modificar metodo para hacer funcional metodoSubir
          */
-        listaObjetosLocales();
+        dirActual = (RAIZBUCKET + "/" + c.getId()).replace('/', File.separatorChar);
+        listarArchivos(dirActual);
 
         vista.jList1.setCellRenderer(new CustomRenderer());
 
 // Agregar el MouseListener para detectar clics en el texto y el botón
-vista.jList1.addMouseListener(new java.awt.event.MouseAdapter() {
-    @Override
-    public void mouseClicked(java.awt.event.MouseEvent evt) {
-        JList<String> list = (JList<String>) evt.getSource();
-        int index = list.locationToIndex(evt.getPoint()); // Obtén el índice del elemento clicado
+        vista.jList1.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                JList<String> list = (JList<String>) evt.getSource();
+                int index = list.locationToIndex(evt.getPoint()); // Obtén el índice del elemento clicado
 
-        if (index >= 0) {
-            String item = list.getModel().getElementAt(index);
-            System.out.println("Elemento clicado: " + item);
+                if (index >= 0) {
+                    String item = list.getModel().getElementAt(index);
+                    System.out.println("Elemento clicado: " + item);
 
-            // Verificar si se ha hecho clic en el botón o en el texto
-            int x = evt.getX(); // Coordenada X del clic
-            int y = evt.getY(); // Coordenada Y del clic
+                    // Verificar si se ha hecho clic en el botón o en el texto
+                    int x = evt.getX(); // Coordenada X del clic
+                    int y = evt.getY(); // Coordenada Y del clic
 
-            // Obtener el componente renderizado en esa posición
-            Component component = list.getCellRenderer().getListCellRendererComponent(list, item, index, false, false);
+                    // Obtener el componente renderizado en esa posición
+                    Component component = list.getCellRenderer().getListCellRendererComponent(list, item, index, false, false);
 
-            // Comprobar si el clic está dentro de la zona del botón
-            if (component instanceof JPanel) {
-                JPanel panel = (JPanel) component;
+                    // Comprobar si el clic está dentro de la zona del botón
+                    if (component instanceof JPanel) {
+                        JPanel panel = (JPanel) component;
 
-                // La región donde se encuentra el botón se encuentra en el BorderLayout.EAST
-                Rectangle buttonBounds = panel.getComponent(1).getBounds(); // El segundo componente es el botón (en BorderLayout.EAST)
+                        // La región donde se encuentra el botón se encuentra en el BorderLayout.EAST
+                        Rectangle buttonBounds = panel.getComponent(1).getBounds(); // El segundo componente es el botón (en BorderLayout.EAST)
 
-                // Verificar si el clic ocurrió dentro del área del botón
-                if (buttonBounds.contains(x, y)) {
-                    System.out.println("Botón clicado para el elemento: " + item);
-                } else {
-                    System.out.println("Texto clicado: " + item);
+                        // Verificar si el clic ocurrió dentro del área del botón
+                        if (buttonBounds.contains(x, y)) {
+                            System.out.println("Botón clicado para el elemento: " + item);
+                        } else {
+                            System.out.println("Texto clicado: " + item);
+                        }
+                    }
                 }
             }
-        }
-    }
-});
+        });
 
         vista.botonMenuSuperior.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -122,10 +129,73 @@ vista.jList1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 vista.dispose();
                 Inicio inicio = new Inicio();
-                new InicioController(inicio);
+                new InicioController(inicio, c);
                 inicio.setVisible(true);
             }
         });
+        vista.jFileChooser2.addActionListener(evt -> {
+            String actionCommand = evt.getActionCommand();
+
+            if (actionCommand.equals(vista.jFileChooser2.APPROVE_SELECTION)) {
+                // Si el usuario hace clic en "Subir" o selecciona archivos
+                File[] selectedFiles = vista.jFileChooser2.getSelectedFiles();
+                if (selectedFiles != null && selectedFiles.length > 0) {
+                    subirArchivos(selectedFiles);
+                }
+                vista.paginaSubir.setVisible(false); // Ocultamos el panel
+            } else if (actionCommand.equals(vista.jFileChooser2.CANCEL_SELECTION)) {
+                // Si el usuario cancela la selección
+                vista.paginaSubir.setVisible(false); // Solo ocultamos el panel
+            }
+        });
+    }
+
+    /*
+    listarArchivos traermelo DONE
+    metodo descargar 
+    subirArchivo 
+    
+     */
+    private void subidaArchivoActionPerformed(java.awt.event.ActionEvent evt) {
+        if (evt.getActionCommand().equals("ApproveSelection")) {
+            subirArchivos(vista.jFileChooser2.getSelectedFiles());
+        }
+        vista.paginaSubir.setVisible(false);
+    }
+
+    private void listarArchivos(String dir) {
+        List<String> ficheros = new ArrayList<>();
+        File[] listaArchivos = new File(dir).listFiles();
+        for (int i = 0; i < listaArchivos.length; i++) {
+            ficheros.add(listaArchivos[i].getName());
+        }
+        String[] listaNombresArchivos = new String[ficheros.size()];
+        for (int i = 0; i < ficheros.size(); i++) {
+            listaNombresArchivos[i] = ficheros.get(i);
+        }
+        //modifico codigo nativo
+        vista.jList1.setModel(new javax.swing.AbstractListModel<String>() {
+            //String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
+            public int getSize() {
+                return listaNombresArchivos.length;
+            }
+
+            public String getElementAt(int i) {
+                return listaNombresArchivos[i];
+            }
+        });
+    }
+
+    private void subirArchivos(File[] selectedFiles) {
+
+        for (File arch : selectedFiles) {
+            try {
+                Files.copy(Path.of(arch.getAbsolutePath()), Path.of(this.dirActual + File.separator + arch.getName()), StandardCopyOption.REPLACE_EXISTING);
+            } catch (IOException ex) {
+                Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        this.listarArchivos(dirActual);
     }
 
     public static void downloadObject(
@@ -276,15 +346,4 @@ vista.jList1.addMouseListener(new java.awt.event.MouseAdapter() {
             }
         });
     }
-
-    private void subirArchivos(File[] selectedFiles) {
-        for (File selectedFile : selectedFiles) {
-            try {
-                Files.copy(Path.of(selectedFile.getAbsolutePath()), Path.of(dirActual + "/".replace('/', File.separatorChar) + selectedFile.getName()), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException ex) {
-                System.out.println(ex);
-            }
-        }
-    }
-
 }
