@@ -6,13 +6,18 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import java.awt.Component;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import view.CustomRenderer;
 import view.Inicio;
 
@@ -40,6 +45,44 @@ public class InicioController {
         - Modificar metodo para hacer funcional metodoSubir
          */
         listaObjetosLocales();
+
+        vista.jList1.setCellRenderer(new CustomRenderer());
+
+// Agregar el MouseListener para detectar clics en el texto y el botón
+vista.jList1.addMouseListener(new java.awt.event.MouseAdapter() {
+    @Override
+    public void mouseClicked(java.awt.event.MouseEvent evt) {
+        JList<String> list = (JList<String>) evt.getSource();
+        int index = list.locationToIndex(evt.getPoint()); // Obtén el índice del elemento clicado
+
+        if (index >= 0) {
+            String item = list.getModel().getElementAt(index);
+            System.out.println("Elemento clicado: " + item);
+
+            // Verificar si se ha hecho clic en el botón o en el texto
+            int x = evt.getX(); // Coordenada X del clic
+            int y = evt.getY(); // Coordenada Y del clic
+
+            // Obtener el componente renderizado en esa posición
+            Component component = list.getCellRenderer().getListCellRendererComponent(list, item, index, false, false);
+
+            // Comprobar si el clic está dentro de la zona del botón
+            if (component instanceof JPanel) {
+                JPanel panel = (JPanel) component;
+
+                // La región donde se encuentra el botón se encuentra en el BorderLayout.EAST
+                Rectangle buttonBounds = panel.getComponent(1).getBounds(); // El segundo componente es el botón (en BorderLayout.EAST)
+
+                // Verificar si el clic ocurrió dentro del área del botón
+                if (buttonBounds.contains(x, y)) {
+                    System.out.println("Botón clicado para el elemento: " + item);
+                } else {
+                    System.out.println("Texto clicado: " + item);
+                }
+            }
+        }
+    }
+});
 
         vista.botonMenuSuperior.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
