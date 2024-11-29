@@ -58,64 +58,84 @@ public class InicioController {
 
         vista.jList1.setCellRenderer(new CustomRenderer());
 
-// Agregar el MouseListener para detectar clics en el texto y el botón
+        // Agregar el MouseListener para detectar clics en el texto y el botón
         vista.jList1.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 JList<String> list = (JList<String>) evt.getSource();
-                int index = list.locationToIndex(evt.getPoint()); // Obtén el índice del elemento clicado
+                int index = list.locationToIndex(evt.getPoint()); // Índice del elemento clicado
 
                 if (index >= 0) {
-                    String item = list.getModel().getElementAt(index);
-                    System.out.println("Elemento clicado: " + item);
+                    // Obtener el nombre del archivo seleccionado
+                    String selectedFileName = list.getModel().getElementAt(index);
 
-                    // Verificar si se ha hecho clic en el botón o en el texto
-                    int x = evt.getX(); // Coordenada X del clic
-                    int y = evt.getY(); // Coordenada Y del clic
+                    // Crear el archivo origen local (asumiendo que los archivos están en la ruta "dirActual")
+                    File sourceFile = new File(dirActual + File.separator + selectedFileName);
 
-                    // Obtener el componente renderizado en esa posición
-                    Component component = list.getCellRenderer().getListCellRendererComponent(list, item, index, false, false);
+                    if (!sourceFile.exists()) {
+                        JOptionPane.showMessageDialog(vista,
+                                "El archivo no existe en el directorio actual",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                        return;
+                    }
 
-                    // Comprobar si el clic está dentro de la zona del botón
-                    if (component instanceof JPanel) {
-                        JPanel panel = (JPanel) component;
+                    // Abrir JFileChooser (vista.jFileChooser2) para seleccionar el directorio de destino
+                    // Configuramos el JFileChooser para seleccionar un directorio
+                    vista.jFileChooser2.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Solo directorios
 
-                        // La región donde se encuentra el botón se encuentra en el BorderLayout.EAST
-                        Rectangle buttonBounds = panel.getComponent(1).getBounds(); // El segundo componente es el botón (en BorderLayout.EAST)
+                    int result = vista.jFileChooser2.showOpenDialog(vista); // Mostramos el cuadro de diálogo
 
-                        // Verificar si el clic ocurrió dentro del área del botón
-                        if (buttonBounds.contains(x, y)) {
-                            System.out.println("Botón clicado para el elemento: " + item);
-                        } else {
-                            System.out.println("Texto clicado: " + item);
+                    if (result == JFileChooser.APPROVE_OPTION) {
+                        // Obtener el directorio de destino seleccionado
+                        File selectedDirectory = vista.jFileChooser2.getSelectedFile();
+
+                        // Ruta destino donde se copiará el archivo
+                        File destFile = new File(selectedDirectory, selectedFileName);
+
+                        // Llamar al método para copiar el archivo
+                        try {
+                            copyFile(sourceFile, destFile);
+                            JOptionPane.showMessageDialog(vista,
+                                    "Archivo copiado exitosamente a: " + selectedDirectory.getAbsolutePath(),
+                                    "Descarga completada",
+                                    JOptionPane.INFORMATION_MESSAGE);
+                        } catch (IOException ex) {
+                            JOptionPane.showMessageDialog(vista,
+                                    "Error al copiar el archivo: " + ex.getMessage(),
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE);
                         }
+                    } else {
+                        System.out.println("Selección de directorio cancelada.");
                     }
                 }
             }
+        });// Configuración de la lista y el hover
+
+        vista.jList1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            @Override
+            public void mouseMoved(java.awt.event.MouseEvent e) {
+                JList<?> list = (JList<?>) e.getSource();
+                int index = list.locationToIndex(e.getPoint()); // Obtener índice del elemento bajo el ratón
+
+                if (index != -1) {
+                    // Cambiar a cursor de mano si está sobre un elemento
+                    list.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+                    // Actualizar el índice hovered en el renderer
+                    CustomRenderer renderer = (CustomRenderer) list.getCellRenderer();
+                    renderer.setHoveredIndex(index);
+                } else {
+                    // Restaurar el cursor predeterminado si no está sobre un elemento
+                    list.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+                }
+
+                // Forzar el repintado para aplicar los cambios
+                list.repaint();
+            }
         });
-// Configuración de la lista y el hover
-vista.jList1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
-    @Override
-    public void mouseMoved(java.awt.event.MouseEvent e) {
-        JList<?> list = (JList<?>) e.getSource();
-        int index = list.locationToIndex(e.getPoint()); // Obtener índice del elemento bajo el ratón
 
-        if (index != -1) {
-            // Cambiar a cursor de mano si está sobre un elemento
-            list.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-            // Actualizar el índice hovered en el renderer
-            CustomRenderer renderer = (CustomRenderer) list.getCellRenderer();
-            renderer.setHoveredIndex(index);
-        } else {
-            // Restaurar el cursor predeterminado si no está sobre un elemento
-            list.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
-        }
-
-        // Forzar el repintado para aplicar los cambios
-        list.repaint();
-    }
-});
         vista.botonMenuSuperior.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 //abrir menu desplegable
@@ -129,7 +149,12 @@ vista.jList1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
         });
 
         vista.botonSubir.addMouseListener(new java.awt.event.MouseAdapter() {
+
             public void mouseClicked(java.awt.event.MouseEvent evt) {
+                // Antes de abrir el JFileChooser, restablecer el directorio y la selección
+                vista.jFileChooser2.setSelectedFile(null);  // Limpiar la selección previa
+                vista.jFileChooser2.setCurrentDirectory(new File(System.getProperty("user.home")));  // Establecer un directorio por defecto
+
                 if (vista.paginaSubir.isVisible()) {
                     vista.paginaSubir.setVisible(false);
                 } else {
@@ -137,62 +162,6 @@ vista.jList1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
                 }
             }
         });
-
-        vista.jList1.addMouseListener(new java.awt.event.MouseAdapter() {
-    @Override
-    public void mouseClicked(java.awt.event.MouseEvent evt) {
-        JList<String> list = (JList<String>) evt.getSource();
-        int index = list.locationToIndex(evt.getPoint()); // Índice del elemento clicado
-
-        if (index >= 0) {
-            // Obtener el nombre del archivo seleccionado
-            String selectedFileName = list.getModel().getElementAt(index);
-
-            // Crear el archivo origen local (asumiendo que los archivos están en la ruta "dirActual")
-            File sourceFile = new File(dirActual + File.separator + selectedFileName);
-            
-            if (!sourceFile.exists()) {
-                JOptionPane.showMessageDialog(vista, 
-                    "El archivo no existe en el directorio actual", 
-                    "Error", 
-                    JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            // Abrir JFileChooser (vista.jFileChooser2) para seleccionar el directorio de destino
-            // Configuramos el JFileChooser para seleccionar un directorio
-            vista.jFileChooser2.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Solo directorios
-
-            int result = vista.jFileChooser2.showOpenDialog(vista); // Mostramos el cuadro de diálogo
-
-            if (result == JFileChooser.APPROVE_OPTION) {
-                // Obtener el directorio de destino seleccionado
-                File selectedDirectory = vista.jFileChooser2.getSelectedFile();
-
-                // Ruta destino donde se copiará el archivo
-                File destFile = new File(selectedDirectory, selectedFileName);
-
-                // Llamar al método para copiar el archivo
-                try {
-                    copyFile(sourceFile, destFile);
-                    JOptionPane.showMessageDialog(vista, 
-                        "Archivo copiado exitosamente a: " + selectedDirectory.getAbsolutePath(), 
-                        "Descarga completada", 
-                        JOptionPane.INFORMATION_MESSAGE);
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(vista, 
-                        "Error al copiar el archivo: " + ex.getMessage(), 
-                        "Error", 
-                        JOptionPane.ERROR_MESSAGE);
-                }
-            } else {
-                System.out.println("Selección de directorio cancelada.");
-            }
-        }
-    }
-});
-
-
 
         vista.botonInicio.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -202,6 +171,7 @@ vista.jList1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
                 inicio.setVisible(true);
             }
         });
+
         vista.jFileChooser2.addActionListener(evt -> {
             String actionCommand = evt.getActionCommand();
             System.out.println("ActionCommand: " + actionCommand); // Debug del comando
@@ -217,15 +187,6 @@ vista.jList1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
                     }
                 }
 
-                // Imprimimos los archivos seleccionados para verificar
-                if (selectedFiles != null) {
-                    for (File file : selectedFiles) {
-                        System.out.println("Archivo seleccionado: " + file.getAbsolutePath());
-                    }
-                } else {
-                    System.out.println("No se seleccionaron archivos.");
-                }
-
                 // Si hay archivos seleccionados, intentamos subirlos
                 if (selectedFiles != null && selectedFiles.length > 0) {
                     subirArchivos(selectedFiles);
@@ -235,7 +196,8 @@ vista.jList1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
                 vista.paginaSubir.setVisible(false);
             } else if (actionCommand.equals(vista.jFileChooser2.CANCEL_SELECTION)) {
                 System.out.println("Selección cancelada.");
-                vista.paginaSubir.setVisible(false);
+                // Solo ocultamos el panel, sin ninguna otra acción
+                vista.paginaSubir.setVisible(false);  // Solo ocultamos el panel sin abrir nada nuevo
             }
         });
 
@@ -421,23 +383,22 @@ vista.jList1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
     }
 
     // Método para copiar un archivo de un directorio a otro
-private void copyFile(File sourceFile, File destFile) throws IOException {
-    // Verificar si el archivo de destino ya existe, si no, se crea
-    if (destFile.exists()) {
-        int response = JOptionPane.showConfirmDialog(vista, 
-            "El archivo ya existe en el destino. ¿Quieres reemplazarlo?", 
-            "Confirmación", 
-            JOptionPane.YES_NO_OPTION);
-        if (response == JOptionPane.NO_OPTION) {
-            return; // No hacer nada si el usuario decide no reemplazar
+    private void copyFile(File sourceFile, File destFile) throws IOException {
+        // Verificar si el archivo de destino ya existe, si no, se crea
+        if (destFile.exists()) {
+            int response = JOptionPane.showConfirmDialog(vista,
+                    "El archivo ya existe en el destino. ¿Quieres reemplazarlo?",
+                    "Confirmación",
+                    JOptionPane.YES_NO_OPTION);
+            if (response == JOptionPane.NO_OPTION) {
+                return; // No hacer nada si el usuario decide no reemplazar
+            }
         }
+
+        // Copiar el archivo
+        Files.copy(sourceFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
-    // Copiar el archivo
-    Files.copy(sourceFile.toPath(), destFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-}
-
-    
     public void listaObjetosLocales() {
         File[] ficherosFile = new File("C:/").listFiles();
         String[] ficheros = new String[ficherosFile.length];

@@ -1,7 +1,14 @@
 package view;
 
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.awt.Window;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.ImageIcon;
 
 /**
@@ -29,7 +36,7 @@ public class Login extends javax.swing.JFrame {
         // Establecer el icono escalado para el componente "logo"
         logo.setIcon(new ImageIcon(new ImageIcon(getClass().getResource("/logoSimpleConFondoConNombrePequenio.png"))
                 .getImage()));
-
+        
     }
 
     /**
