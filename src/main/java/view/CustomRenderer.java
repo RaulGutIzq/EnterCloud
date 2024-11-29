@@ -1,39 +1,48 @@
 package view;
+
 import javax.swing.*;
 import java.awt.*;
 
 public class CustomRenderer extends DefaultListCellRenderer {
 
+    private int hoveredIndex = -1; // Índice del elemento hover
+
+    public void setHoveredIndex(int hoveredIndex) {
+        this.hoveredIndex = hoveredIndex;
+    }
+
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value, int index,
                                                   boolean isSelected, boolean cellHasFocus) {
-        
         // Crear un panel con un JLabel y un JButton
         JPanel panel = new JPanel(new BorderLayout());
         JLabel label = new JLabel(value.toString());
-        JButton desplegable = new JButton("Acción");
-        label.setFont(new java.awt.Font("Nunito Medium", 0, 13));
-        desplegable.setFont(new java.awt.Font("Nunito Medium", 0, 13));
-        desplegable.setText("");
+        JButton desplegable = new JButton();
+        label.setFont(new Font("Nunito Medium", Font.PLAIN, 13));
+        desplegable.setFont(new Font("Nunito Medium", Font.PLAIN, 13));
+
+        // Configurar botón
         ImageIcon iconoMenuBoton = new ImageIcon("C:/Users/DAM2/Downloads/FINALINFERFACE/src/main/java/resources/botonMenu.png");
         desplegable.setIcon(iconoMenuBoton);
-        desplegable.setBackground(new java.awt.Color(53, 114, 239));
+        desplegable.setBackground(new Color(53, 114, 239));
         desplegable.setPreferredSize(new Dimension(40, 40));
-        
-        // Añadir el label y el botón al panel
+
+        // Añadir componentes al panel
         panel.add(label, BorderLayout.WEST);
         panel.add(desplegable, BorderLayout.EAST);
-        
-        // Configurar el fondo del panel dependiendo de si está seleccionado
+
+        // Cambiar el fondo para selección o hover
         if (isSelected) {
             panel.setBackground(list.getSelectionBackground());
             label.setForeground(list.getSelectionForeground());
+        } else if (index == hoveredIndex) {
+            panel.setBackground(Color.WHITE); // Fondo para hover
+            label.setForeground(Color.BLACK);
         } else {
             panel.setBackground(list.getBackground());
             label.setForeground(list.getForeground());
         }
 
-        // Devolver el panel con el botón y el texto
         return panel;
     }
 }
