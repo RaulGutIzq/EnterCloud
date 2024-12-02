@@ -3,6 +3,7 @@ package view;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import javax.swing.ImageIcon;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
 
 /**
@@ -11,7 +12,6 @@ import javax.swing.JScrollBar;
  */
 public class Inicio extends javax.swing.JFrame {
 
-    
 
     /**
      * Creates new form Inicio
@@ -21,6 +21,11 @@ public class Inicio extends javax.swing.JFrame {
         this.setSize(500, 400);
         paginaSubir.setSize(597, 347);
         paginaSubir.setVisible(false);
+        menuUsuario.add(lblAlmacenamiento);
+        menuUsuario.add(new JPopupMenu.Separator());
+        menuUsuario.add(btnCerrarSesion);
+        lblAlmacenamiento.setText("Almacenamiento: ");
+        btnCerrarSesion.setText("Cerrar Sesión");
         this.setIconImage(new ImageIcon("/resources/logoSimpleSinFondoSinLetras.png").getImage());
         //stackoverflow
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -28,12 +33,8 @@ public class Inicio extends javax.swing.JFrame {
                 dim.height / 2 - this.getSize().height / 2);
         String filePath = "/resources/botonMenu.png";
         //logos barra superior
-        botonMenuSuperior.setIcon(new ImageIcon(new ImageIcon(filePath).getImage()));
-        
-        
-        
-        
-        
+        btnMenu.setIcon(new ImageIcon(new ImageIcon(filePath).getImage()));
+
         //chatGPT
         JScrollBar verticalScrollBar = jScrollPane1.getVerticalScrollBar();
         JScrollBar horizontalScrollBar = jScrollPane1.getHorizontalScrollBar();
@@ -57,10 +58,13 @@ public class Inicio extends javax.swing.JFrame {
 
         paginaSubir = new javax.swing.JFrame();
         jFileChooser2 = new javax.swing.JFileChooser();
+        menuUsuario = new javax.swing.JPopupMenu();
         jPanel1 = new javax.swing.JPanel();
         panelSuperior = new javax.swing.JPanel();
-        botonMenuSuperior = new javax.swing.JToggleButton();
         jLabel1 = new javax.swing.JLabel();
+        btnMenu = new javax.swing.JButton();
+        lblAlmacenamiento = new javax.swing.JLabel();
+        btnCerrarSesion = new javax.swing.JButton();
         panelInferior = new javax.swing.JPanel();
         botonInicio = new javax.swing.JButton();
         botonFavoritos = new javax.swing.JButton();
@@ -98,12 +102,16 @@ public class Inicio extends javax.swing.JFrame {
 
         panelSuperior.setBackground(new java.awt.Color(2, 34, 57));
 
-        botonMenuSuperior.setBackground(new java.awt.Color(2, 34, 57));
-        botonMenuSuperior.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-
         jLabel1.setFont(new java.awt.Font("Nunito Medium", 0, 15)); // NOI18N
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Inicio");
+
+        btnMenu.setText("jButton1");
+        btnMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMenuActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout panelSuperiorLayout = new javax.swing.GroupLayout(panelSuperior);
         panelSuperior.setLayout(panelSuperiorLayout);
@@ -112,19 +120,31 @@ public class Inicio extends javax.swing.JFrame {
             .addGroup(panelSuperiorLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(panelSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelSuperiorLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblAlmacenamiento, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(panelSuperiorLayout.createSequentialGroup()
+                        .addGap(48, 48, 48)
+                        .addComponent(btnCerrarSesion)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(botonMenuSuperior, javax.swing.GroupLayout.PREFERRED_SIZE, 46, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addComponent(btnMenu)
+                .addContainerGap())
         );
         panelSuperiorLayout.setVerticalGroup(
             panelSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelSuperiorLayout.createSequentialGroup()
+                .addContainerGap(15, Short.MAX_VALUE)
+                .addGroup(panelSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(btnMenu))
+                .addGap(18, 18, 18))
             .addGroup(panelSuperiorLayout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(botonMenuSuperior, javax.swing.GroupLayout.PREFERRED_SIZE, 44, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelSuperiorLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel1)
-                .addGap(19, 19, 19))
+                .addComponent(lblAlmacenamiento, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnCerrarSesion, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         panelInferior.setBackground(new java.awt.Color(2, 34, 57));
@@ -214,18 +234,25 @@ public class Inicio extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-    
+
+    private void btnMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMenuActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_btnMenuActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     public javax.swing.JButton botonFavoritos;
     public javax.swing.JButton botonInicio;
-    public javax.swing.JToggleButton botonMenuSuperior;
     public javax.swing.JButton botonSubir;
+    public javax.swing.JButton btnCerrarSesion;
+    public javax.swing.JButton btnMenu;
     public javax.swing.JFileChooser jFileChooser2;
     public javax.swing.JLabel jLabel1;
     public javax.swing.JList<String> jList1;
     public javax.swing.JPanel jPanel1;
     public javax.swing.JScrollPane jScrollPane1;
+    public javax.swing.JLabel lblAlmacenamiento;
+    public javax.swing.JPopupMenu menuUsuario;
     public javax.swing.JFrame paginaSubir;
     public javax.swing.JPanel panelInferior;
     public javax.swing.JPanel panelSuperior;

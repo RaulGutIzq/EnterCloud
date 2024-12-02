@@ -10,6 +10,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Rectangle;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -26,8 +27,10 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import model.Cliente;
+import model.ClientesDAO;
 import view.CustomRenderer;
 import view.Inicio;
+import view.Login;
 
 /**
  *
@@ -136,7 +139,7 @@ public class InicioController {
             }
         });
 
-        vista.botonMenuSuperior.addMouseListener(new java.awt.event.MouseAdapter() {
+        vista.btnMenu.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 //abrir menu desplegable
             }
@@ -193,14 +196,29 @@ public class InicioController {
                 }
 
                 // Ocultamos el panel después de procesar
-                vista.paginaSubir.setVisible(false);
+
             } else if (actionCommand.equals(vista.jFileChooser2.CANCEL_SELECTION)) {
                 System.out.println("Selección cancelada.");
                 // Solo ocultamos el panel, sin ninguna otra acción
-                vista.paginaSubir.setVisible(false);  // Solo ocultamos el panel sin abrir nada nuevo
             }
         });
 
+        vista.menuUsuario.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                menuUsuarioFocusLost(evt);
+            }
+        });
+
+        vista.btnMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnMenuActionPerformed(evt);
+            }
+        });
+        vista.btnCerrarSesion.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCerrarSesionActionPerformed(evt);
+            }
+        });
     }
 
     /*
@@ -250,6 +268,62 @@ public class InicioController {
             }
         }
         this.listarArchivos(dirActual);
+    }
+
+    private String calcAlmacenamiento() {
+        File dir = new File(dirActual);
+        while (!dir.getParentFile().getAbsolutePath().equals(RAIZBUCKET.replace('/', File.separatorChar))) {
+            dir = dir.getParentFile();
+        }
+        System.err.println(dir.getAbsolutePath());
+        System.err.println(longDir(dir));
+        return String.format("%.2f", longDir(dir) / 1073741824f);
+    }
+
+    private long longDir(File dir) {
+        long tam = 0;
+        if (dir.isDirectory()) {
+            for (File arch : dir.listFiles()) {
+                tam = tam + longDir(arch);
+            }
+        } else {
+            tam = dir.length();
+        }
+        return tam;
+    }
+
+    private void btnMenuActionPerformed(java.awt.event.ActionEvent evt) {
+        if (vista.menuUsuario.isVisible()) {
+            vista.menuUsuario.setVisible(false);
+        } else {
+            mostrarMenuDesplegable();
+        }
+    }
+
+    private void mostrarMenuDesplegable() {
+        vista.lblAlmacenamiento.setText("Almacenamiento: " + calcAlmacenamiento() + "/50GB");
+        vista.menuUsuario.show(vista.getContentPane(), vista.btnMenu.getX(), vista.btnMenu.getY() + vista.btnMenu.getHeight());
+    }
+
+    private void menuUsuarioFocusLost(java.awt.event.FocusEvent evt) {
+        // TODO add your handling code here:
+        vista.menuUsuario.setVisible(false);
+    }
+
+    private void btnCerrarSesionActionPerformed(java.awt.event.ActionEvent evt) {
+        try {
+            ClientesDAO model = new ClientesDAO("Clientes.dat", "r");
+            Login view = new Login();
+            LoginController controlador = new LoginController(model, view);
+            view.setVisible(true);
+            if (vista.menuUsuario.isVisible()) {
+                vista.menuUsuario.setVisible(false);
+            }
+            this.vista.dispose();
+
+        } catch (FileNotFoundException ex) {
+            System.out.println("Fichero Clientes.dat no encontrado.");
+        }
     }
 
     public static void downloadObject(
