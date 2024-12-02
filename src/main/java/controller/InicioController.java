@@ -23,11 +23,13 @@ import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import model.Cliente;
 import model.ClientesDAO;
+import view.Ayuda;
 import view.CustomRenderer;
 import view.Inicio;
 import view.Login;
@@ -60,7 +62,31 @@ public class InicioController {
         listarArchivos(dirActual);
 
         vista.jList1.setCellRenderer(new CustomRenderer());
+        vista.jPanel1.setFocusable(true); // Asegurarte de que el panel sea enfocable
+        vista.jPanel1.requestFocusInWindow(); // Solicitar el foco para el panel
+        vista.jPanel1.getInputMap(javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW)
+                .put(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1,
+                        0), "showHelp");
 
+        vista.jPanel1.getActionMap().put("showHelp", new javax.swing.AbstractAction() {
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+                Ayuda a = new Ayuda();
+                a.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                a.setVisible(true);
+            }
+
+            
+        });
+        
+        vista.botonAyuda.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                Ayuda a = new Ayuda();
+                a.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+                a.setVisible(true);
+            }
+        });
+        
         // Agregar el MouseListener para detectar clics en el texto y el botón
         vista.jList1.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -196,7 +222,6 @@ public class InicioController {
                 }
 
                 // Ocultamos el panel después de procesar
-
             } else if (actionCommand.equals(vista.jFileChooser2.CANCEL_SELECTION)) {
                 System.out.println("Selección cancelada.");
                 // Solo ocultamos el panel, sin ninguna otra acción
