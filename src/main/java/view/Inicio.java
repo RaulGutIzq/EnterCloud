@@ -75,6 +75,13 @@ public class Inicio extends javax.swing.JFrame {
 
         paginaSubir.setSize(new java.awt.Dimension(597, 347));
 
+        jFileChooser2.setFileSelectionMode(javax.swing.JFileChooser.FILES_AND_DIRECTORIES);
+        jFileChooser2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jFileChooser2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout paginaSubirLayout = new javax.swing.GroupLayout(paginaSubir.getContentPane());
         paginaSubir.getContentPane().setLayout(paginaSubirLayout);
         paginaSubirLayout.setHorizontalGroup(
@@ -246,6 +253,10 @@ public class Inicio extends javax.swing.JFrame {
     private void btnMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMenuActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_btnMenuActionPerformed
+
+    private void jFileChooser2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFileChooser2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jFileChooser2ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
