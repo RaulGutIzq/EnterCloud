@@ -26,7 +26,7 @@ public class Login extends javax.swing.JFrame {
         this.setSize(500, 400);
 
         // Establecer el icono de la ventana
-        this.setIconImage(new ImageIcon(getClass().getResource("/logoSimpleConFondoConNombrePequenio.png")).getImage());
+        this.setIconImage(new ImageIcon(getClass().getResource("/logoSimpleSinFondoSinLetras.png")).getImage());
 
         // Centrar la ventana en la pantalla
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();

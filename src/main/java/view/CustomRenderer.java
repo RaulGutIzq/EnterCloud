@@ -22,7 +22,7 @@ public class CustomRenderer extends DefaultListCellRenderer {
         desplegable.setFont(new Font("Nunito Medium", Font.PLAIN, 13));
 
         // Configurar botón
-        ImageIcon iconoMenuBoton = new ImageIcon("C:/Users/DAM2/Downloads/FINALINFERFACE/src/main/java/resources/botonMenu.png");
+        ImageIcon iconoMenuBoton = new ImageIcon(getClass().getResource("/Iconos_Menus/menu_blanco.png"));
         desplegable.setIcon(iconoMenuBoton);
         desplegable.setBackground(new Color(53, 114, 239));
         desplegable.setPreferredSize(new Dimension(40, 40));

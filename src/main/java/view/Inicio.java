@@ -26,14 +26,12 @@ public class Inicio extends javax.swing.JFrame {
         menuUsuario.add(btnCerrarSesion);
         lblAlmacenamiento.setText("Almacenamiento: ");
         btnCerrarSesion.setText("Cerrar Sesión");
-        this.setIconImage(new ImageIcon("/resources/logoSimpleSinFondoSinLetras.png").getImage());
+        this.setIconImage(new ImageIcon(getClass().getResource("/logoSimpleSinFondoSinLetras.png")).getImage());
         //stackoverflow
         Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
         this.setLocation(dim.width / 2 - this.getSize().width / 2,
                 dim.height / 2 - this.getSize().height / 2);
-        String filePath = "/resources/botonMenu.png";
         //logos barra superior
-        btnMenu.setIcon(new ImageIcon(new ImageIcon(filePath).getImage()));
 
         //chatGPT
         JScrollBar verticalScrollBar = jScrollPane1.getVerticalScrollBar();
@@ -114,7 +112,10 @@ public class Inicio extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(255, 255, 255));
         jLabel1.setText("Inicio");
 
-        btnMenu.setText("Usuario");
+        btnMenu.setBackground(new java.awt.Color(2, 34, 57));
+        btnMenu.setForeground(new java.awt.Color(255, 255, 255));
+        btnMenu.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Iconos_Menus/persona_blanca.png"))); // NOI18N
+        btnMenu.setToolTipText("Menu Usuario");
         btnMenu.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnMenuActionPerformed(evt);
@@ -135,7 +136,7 @@ public class Inicio extends javax.swing.JFrame {
                     .addGroup(panelSuperiorLayout.createSequentialGroup()
                         .addGap(48, 48, 48)
                         .addComponent(btnCerrarSesion)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 99, Short.MAX_VALUE)
                 .addComponent(btnMenu, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -144,17 +145,18 @@ public class Inicio extends javax.swing.JFrame {
             .addGroup(panelSuperiorLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelSuperiorLayout.createSequentialGroup()
-                        .addComponent(lblAlmacenamiento, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnCerrarSesion, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap())
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelSuperiorLayout.createSequentialGroup()
-                        .addGap(0, 9, Short.MAX_VALUE)
-                        .addGroup(panelSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel1)
-                            .addComponent(btnMenu))
-                        .addGap(18, 18, 18))))
+                        .addGap(9, 9, 9)
+                        .addComponent(jLabel1)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(panelSuperiorLayout.createSequentialGroup()
+                        .addGroup(panelSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelSuperiorLayout.createSequentialGroup()
+                                .addComponent(lblAlmacenamiento, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnCerrarSesion, javax.swing.GroupLayout.PREFERRED_SIZE, 15, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(btnMenu, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addContainerGap())))
         );
 
         panelInferior.setBackground(new java.awt.Color(2, 34, 57));
@@ -162,50 +164,62 @@ public class Inicio extends javax.swing.JFrame {
         botonInicio.setBackground(new java.awt.Color(2, 34, 57));
         botonInicio.setFont(new java.awt.Font("Nunito Medium", 0, 13)); // NOI18N
         botonInicio.setForeground(new java.awt.Color(255, 255, 255));
-        botonInicio.setText("Inicio");
-        botonInicio.setToolTipText("");
+        botonInicio.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Iconos_Barra/home_blanco.png"))); // NOI18N
+        botonInicio.setToolTipText("Inicio");
         botonInicio.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        botonInicio.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                botonInicioActionPerformed(evt);
+            }
+        });
 
         botonFavoritos.setBackground(new java.awt.Color(2, 34, 57));
         botonFavoritos.setFont(new java.awt.Font("Nunito Medium", 0, 13)); // NOI18N
         botonFavoritos.setForeground(new java.awt.Color(255, 255, 255));
-        botonFavoritos.setText("Favoritos");
+        botonFavoritos.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Iconos_Barra/fav_blanco.png"))); // NOI18N
+        botonFavoritos.setToolTipText("Favoritos");
         botonFavoritos.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         botonSubir.setBackground(new java.awt.Color(2, 34, 57));
         botonSubir.setFont(new java.awt.Font("Nunito Medium", 0, 13)); // NOI18N
         botonSubir.setForeground(new java.awt.Color(255, 255, 255));
-        botonSubir.setText("Subir");
+        botonSubir.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Iconos_Barra/upload_blanco.png"))); // NOI18N
+        botonSubir.setToolTipText("Subir");
         botonSubir.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         botonSubir.setMaximumSize(new java.awt.Dimension(78, 73));
 
-        botonAyuda.setText("?");
+        botonAyuda.setBackground(new java.awt.Color(2, 34, 57));
+        botonAyuda.setForeground(new java.awt.Color(255, 255, 255));
+        botonAyuda.setIcon(new javax.swing.ImageIcon(getClass().getResource("/Iconos_Barra/help_blanco.png"))); // NOI18N
+        botonAyuda.setToolTipText("Ayuda");
+        botonAyuda.setActionCommand("");
+        botonAyuda.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         javax.swing.GroupLayout panelInferiorLayout = new javax.swing.GroupLayout(panelInferior);
         panelInferior.setLayout(panelInferiorLayout);
         panelInferiorLayout.setHorizontalGroup(
             panelInferiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInferiorLayout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(botonAyuda, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 31, Short.MAX_VALUE)
-                .addComponent(botonInicio)
-                .addGap(18, 18, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
                 .addComponent(botonFavoritos)
-                .addGap(18, 21, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(botonInicio)
+                .addGap(18, 18, 18)
                 .addComponent(botonSubir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(59, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelInferiorLayout.setVerticalGroup(
             panelInferiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInferiorLayout.createSequentialGroup()
-                .addContainerGap(16, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelInferiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(botonInicio)
                     .addComponent(botonFavoritos)
                     .addComponent(botonSubir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(botonAyuda, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         jList1.setBackground(new java.awt.Color(53, 114, 239));
@@ -231,7 +245,7 @@ public class Inicio extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(panelSuperior, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(0, 0, 0)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 272, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 288, Short.MAX_VALUE)
                 .addGap(0, 0, 0)
                 .addComponent(panelInferior, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
@@ -257,6 +271,10 @@ public class Inicio extends javax.swing.JFrame {
     private void jFileChooser2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jFileChooser2ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jFileChooser2ActionPerformed
+
+    private void botonInicioActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_botonInicioActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_botonInicioActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
