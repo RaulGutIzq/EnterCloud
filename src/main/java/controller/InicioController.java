@@ -76,9 +76,8 @@ public class InicioController {
                 a.setVisible(true);
             }
 
-            
         });
-        
+
         vista.botonAyuda.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 Ayuda a = new Ayuda();
@@ -86,7 +85,7 @@ public class InicioController {
                 a.setVisible(true);
             }
         });
-        
+
         // Agregar el MouseListener para detectar clics en el texto y el botón
         vista.jList1.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
@@ -95,52 +94,97 @@ public class InicioController {
                 int index = list.locationToIndex(evt.getPoint()); // Índice del elemento clicado
 
                 if (index >= 0) {
-                    // Obtener el nombre del archivo seleccionado
-                    String selectedFileName = list.getModel().getElementAt(index);
+                    if (evt.getClickCount() == 1) {
+                        // Lógica para clic simple
+                        list.setSelectedIndex(index); // Seleccionar el elemento
+                        System.out.println("Elemento seleccionado: " + list.getModel().getElementAt(index));
+                    } else if (evt.getClickCount() == 2) {
+                        // Lógica para doble clic
+                        String selectedFileName = list.getModel().getElementAt(index);
 
-                    // Crear el archivo origen local (asumiendo que los archivos están en la ruta "dirActual")
-                    File sourceFile = new File(dirActual + File.separator + selectedFileName);
-
-                    if (!sourceFile.exists()) {
-                        JOptionPane.showMessageDialog(vista,
-                                "El archivo no existe en el directorio actual",
-                                "Error",
-                                JOptionPane.ERROR_MESSAGE);
-                        return;
-                    }
-
-                    // Abrir JFileChooser (vista.jFileChooser2) para seleccionar el directorio de destino
-                    // Configuramos el JFileChooser para seleccionar un directorio
-                    vista.jFileChooser2.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY); // Solo directorios
-
-                    int result = vista.jFileChooser2.showOpenDialog(vista); // Mostramos el cuadro de diálogo
-
-                    if (result == JFileChooser.APPROVE_OPTION) {
-                        // Obtener el directorio de destino seleccionado
-                        File selectedDirectory = vista.jFileChooser2.getSelectedFile();
-
-                        // Ruta destino donde se copiará el archivo
-                        File destFile = new File(selectedDirectory, selectedFileName);
-
-                        // Llamar al método para copiar el archivo
-                        try {
-                            copyFile(sourceFile, destFile);
+                        File sourceFile = new File(dirActual + File.separator + selectedFileName);
+                        if (!sourceFile.exists()) {
                             JOptionPane.showMessageDialog(vista,
-                                    "Archivo copiado exitosamente a: " + selectedDirectory.getAbsolutePath(),
-                                    "Descarga completada",
-                                    JOptionPane.INFORMATION_MESSAGE);
-                        } catch (IOException ex) {
-                            JOptionPane.showMessageDialog(vista,
-                                    "Error al copiar el archivo: " + ex.getMessage(),
+                                    "El archivo no existe en el directorio actual",
                                     "Error",
                                     JOptionPane.ERROR_MESSAGE);
+                            return;
                         }
-                    } else {
-                        System.out.println("Selección de directorio cancelada.");
+
+                        vista.jFileChooser2.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+                        int result = vista.jFileChooser2.showOpenDialog(vista);
+                        if (result == JFileChooser.APPROVE_OPTION) {
+                            File selectedDirectory = vista.jFileChooser2.getSelectedFile();
+                            File destFile = new File(selectedDirectory, selectedFileName);
+
+                            try {
+                                copyFile(sourceFile, destFile);
+                                JOptionPane.showMessageDialog(vista,
+                                        "Archivo copiado exitosamente a: " + selectedDirectory.getAbsolutePath(),
+                                        "Descarga completada",
+                                        JOptionPane.INFORMATION_MESSAGE);
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(vista,
+                                        "Error al copiar el archivo: " + ex.getMessage(),
+                                        "Error",
+                                        JOptionPane.ERROR_MESSAGE);
+                            }
+                        } else {
+                            System.out.println("Selección de directorio cancelada.");
+                        }
                     }
                 }
             }
-        });// Configuración de la lista y el hover
+        });
+        vista.jList1.addKeyListener(new java.awt.event.KeyAdapter() {
+    @Override
+    public void keyPressed(java.awt.event.KeyEvent evt) {
+        if (evt.getKeyCode() == java.awt.event.KeyEvent.VK_DELETE) {
+            int selectedIndex = vista.jList1.getSelectedIndex();
+
+            if (selectedIndex >= 0) {
+                // Obtener el nombre del archivo seleccionado
+                String selectedFileName = vista.jList1.getModel().getElementAt(selectedIndex);
+                File fileToDelete = new File(dirActual + File.separator + selectedFileName);
+
+                int confirmation = JOptionPane.showConfirmDialog(
+                        vista,
+                        "¿Está seguro de que desea eliminar el archivo: '" + selectedFileName + "'?",
+                        "Confirmar eliminación",
+                        JOptionPane.YES_NO_OPTION
+                );
+
+                if (confirmation == JOptionPane.YES_OPTION) {
+                    if (fileToDelete.exists() && fileToDelete.delete()) {
+                        // Refrescar la lista de archivos
+                        listarArchivos(dirActual);
+
+                        // Notificar al usuario
+                        JOptionPane.showMessageDialog(vista,
+                                "Archivo eliminado exitosamente.",
+                                "Eliminación completada",
+                                JOptionPane.INFORMATION_MESSAGE);
+                    } else {
+                        JOptionPane.showMessageDialog(vista,
+                                "No se pudo eliminar el archivo. Verifique si está en uso o tiene permisos suficientes.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } else {
+                JOptionPane.showMessageDialog(vista,
+                        "No hay ningún elemento seleccionado para eliminar.",
+                        "Error",
+                        JOptionPane.WARNING_MESSAGE);
+            }
+        }
+    }
+});
+
+
+
+// Configuración de la lista y el hover
 
         vista.jList1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             @Override
@@ -162,12 +206,6 @@ public class InicioController {
 
                 // Forzar el repintado para aplicar los cambios
                 list.repaint();
-            }
-        });
-
-        vista.btnMenu.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                //abrir menu desplegable
             }
         });
 
@@ -351,8 +389,6 @@ public class InicioController {
         }
     }
 
-    
-    
     public static void downloadObject(
             String projectId, String bucketName, String objectName, String destFilePath) {
         // The ID of your GCP project
