@@ -62,6 +62,32 @@ public class InicioController {
             }
         });
 
+        vista.btnMenu.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                //abrir menu desplegable
+            }
+        });
+
+        vista.botonFavoritos.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                //Ir a favoritos
+            }
+        });
+        // Agregar el MouseListener para detectar clics en el texto y el botón
+        vista.jList1.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                //@TODO: Gestionar java.nio.file.FileAlreadyExistsException
+                if (evt.getClickCount() == 2) {
+                    vista.paginaSubir.setTitle("Descargar");
+                    vista.jFileChooser2.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
+                    vista.jFileChooser2.setSelectedFile(null);  // Limpiar la selección previa
+                    vista.jFileChooser2.setCurrentDirectory(new File(System.getProperty("user.home")));  // Establecer un directorio por defecto
+                    vista.jFileChooser2.setDialogType(JFileChooser.SAVE_DIALOG);
+                    vista.paginaSubir.setVisible(true);
+                }
+            }
+        });// Configuración de la lista y el hover
         vista.jList1.addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
             @Override
             public void mouseMoved(java.awt.event.MouseEvent e) {
@@ -85,29 +111,6 @@ public class InicioController {
             }
         });
 
-        vista.btnMenu.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                //abrir menu desplegable
-            }
-        });
-
-        vista.botonFavoritos.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                //Ir a favoritos
-            }
-        });
-        // Agregar el MouseListener para detectar clics en el texto y el botón
-        vista.jList1.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                vista.paginaSubir.setTitle("Descargar");
-                vista.jFileChooser2.setFileSelectionMode(javax.swing.JFileChooser.DIRECTORIES_ONLY);
-                vista.jFileChooser2.setSelectedFile(null);  // Limpiar la selección previa
-                vista.jFileChooser2.setCurrentDirectory(new File(System.getProperty("user.home")));  // Establecer un directorio por defecto
-                vista.jFileChooser2.setDialogType(JFileChooser.SAVE_DIALOG);
-                vista.paginaSubir.setVisible(true);
-            }
-        });// Configuración de la lista y el hover
         vista.jList1.addKeyListener(new java.awt.event.KeyAdapter() {
             @Override
             public void keyPressed(java.awt.event.KeyEvent evt) {
