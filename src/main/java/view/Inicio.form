@@ -40,9 +40,6 @@
           <Properties>
             <Property name="fileSelectionMode" type="int" value="2"/>
           </Properties>
-          <Events>
-            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jFileChooser2ActionPerformed"/>
-          </Events>
         </Component>
       </SubComponents>
     </Container>
@@ -194,9 +191,6 @@
                 </Property>
                 <Property name="toolTipText" type="java.lang.String" value="Menu Usuario"/>
               </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnMenuActionPerformed"/>
-              </Events>
             </Component>
             <Component class="javax.swing.JLabel" name="lblAlmacenamiento">
             </Component>
@@ -262,9 +256,6 @@
                   <Color id="Hand Cursor"/>
                 </Property>
               </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="botonInicioActionPerformed"/>
-              </Events>
             </Component>
             <Component class="javax.swing.JButton" name="botonFavoritos">
               <Properties>
@@ -321,7 +312,6 @@
                   <Image iconType="3" name="/Iconos_Barra/help_blanco.png"/>
                 </Property>
                 <Property name="toolTipText" type="java.lang.String" value="Ayuda"/>
-                <Property name="actionCommand" type="java.lang.String" value=""/>
                 <Property name="cursor" type="java.awt.Cursor" editor="org.netbeans.modules.form.editors2.CursorEditor">
                   <Color id="Hand Cursor"/>
                 </Property>

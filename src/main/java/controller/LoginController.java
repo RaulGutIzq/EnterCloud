@@ -1,7 +1,5 @@
 package controller;
 
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.EOFException;
 import java.io.File;
@@ -9,36 +7,44 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import model.Cliente;
 import model.ClientesDAO;
 import view.Inicio;
 import view.Login;
 
 /**
+ * Controlador para manejar la lógica de la pantalla de inicio de sesión.
+ * Gestiona las interacciones entre la vista `Login` y el modelo `ClientesDAO`.
+ * Permite validar credenciales, manejar errores, y redirigir al usuario al
+ * inicio si las credenciales son correctas.
  *
- * @author Daniel Fraile Leon
+ * @author CDC
  */
 public class LoginController {
 
-    private static final String RAIZBUCKET = "E:/DAM2/DI";
-    private ClientesDAO cliente;
-    private Login vista;
+    private static final String RAIZBUCKET = "E:/DAM2/DI"; // Ruta raíz para almacenar datos del usuario.
+    private ClientesDAO cliente; // Modelo para interactuar con los datos de clientes.
+    private Login vista; // Vista para la pantalla de inicio de sesión.
 
+    /**
+     * Constructor que inicializa el controlador con el modelo y la vista.
+     * Configura los eventos de interacción con la vista.
+     *
+     * @param cliente Instancia del modelo de datos de clientes.
+     * @param vista Vista de inicio de sesión.
+     */
     public LoginController(ClientesDAO cliente, Login vista) {
         this.cliente = cliente;
         this.vista = vista;
 
+        // Configuración de eventos de la vista
         vista.jPanel1.setFocusable(true);
         vista.jPanel1.requestFocusInWindow();
+
         vista.userForm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 vista.userForm.setText("");
             }
-        });
-        vista.jButton1.addActionListener(evt -> {
-            botonLoginActionPerformed(evt);
         });
 
         vista.passForm.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -46,17 +52,26 @@ public class LoginController {
                 vista.passForm.setText("");
             }
         });
-        vista.getRootPane().setDefaultButton(vista.jButton1);
 
+        vista.jButton1.addActionListener(evt -> botonLoginActionPerformed(evt));
+        vista.getRootPane().setDefaultButton(vista.jButton1); // Define el botón de inicio de sesión como predeterminado.
     }
 
+    /**
+     * Valida las credenciales del usuario y redirige a la ventana de inicio si
+     * son correctas.
+     *
+     * @param correo Correo del usuario ingresado en el formulario.
+     * @throws IOException Si ocurre un error al acceder a los datos del
+     * cliente.
+     */
     private void irAInicio(String correo) throws IOException {
         Cliente c = null;
         ClientesDAO fich = null;
         try {
             fich = new ClientesDAO("Clientes.dat", "r");
             try {
-                while (true) {
+                while (true) {  // Busca al cliente en el archivo de datos.
                     c = fich.leer();
                     if (c.getCorreo().equals(correo)) {
                         break;
@@ -80,13 +95,15 @@ public class LoginController {
             }
         }
         if (c != null) {
-
+            // Crea el directorio raíz del usuario si no existe.
             File raizUser = new File((RAIZBUCKET + "/" + c.getId()).replace('/', File.separatorChar));
             if (!raizUser.exists()) {
                 if (!raizUser.mkdir()) {
                     throw new IOException("No se ha podido crear la raiz del usuario: " + c.getId());
                 }
             }
+
+            // Redirige a la pantalla de inicio.
             Inicio inicio = new Inicio();
             new InicioController(inicio, c);
             inicio.setVisible(true);
@@ -96,9 +113,16 @@ public class LoginController {
         }
     }
 
+    /**
+     * Maneja la acción del botón de inicio de sesión. Valida las credenciales y
+     * redirige al usuario o muestra un mensaje de error.
+     *
+     * @param evt Evento de acción del botón.
+     */
     private void botonLoginActionPerformed(java.awt.event.ActionEvent evt) {
         boolean esValido;
         String correo = null, pass;
+
         try {
             correo = vista.userForm.getText();
             pass = new String(vista.passForm.getPassword());
@@ -106,8 +130,10 @@ public class LoginController {
         } catch (NullPointerException e) {
             esValido = false;
         }
-        vista.mensajeError.setVisible(!esValido);
+
+        vista.mensajeError.setVisible(!esValido); // Muestra un mensaje de error si las credenciales no son válidas.
         vista.setVisible(!esValido);
+
         if (esValido) {
             try {
                 irAInicio(correo);
@@ -117,15 +143,26 @@ public class LoginController {
         }
     }
 
+    /**
+     * Valida si las credenciales ingresadas (correo y contraseña) coinciden con
+     * las almacenadas.
+     *
+     * @param correo Correo ingresado por el usuario.
+     * @param contra Contraseña ingresada por el usuario.
+     * @return `true` si las credenciales son correctas, de lo contrario
+     * `false`.
+     */
     private static boolean correoCorrecto(String correo, String contra) {
         BufferedReader fich = null;
         String linea;
         boolean existeCombo = false;
+
         try {
             fich = new BufferedReader(new InputStreamReader(new FileInputStream("clientes.txt")));
             linea = fich.readLine();
+
             while (linea != null && !existeCombo) {
-                existeCombo = linea.equals(correo + ":" + contra);
+                existeCombo = linea.equals(correo + ":" + contra); // Compara correo y contraseña.
                 linea = fich.readLine();
             }
         } catch (FileNotFoundException ex) {
