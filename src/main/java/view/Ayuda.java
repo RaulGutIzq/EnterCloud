@@ -23,6 +23,7 @@ public class Ayuda extends javax.swing.JFrame {
         jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Ayuda - EnterCloud Project");
         setMaximumSize(new java.awt.Dimension(1215, 682));
         setMinimumSize(new java.awt.Dimension(1215, 682));
         setResizable(false);
