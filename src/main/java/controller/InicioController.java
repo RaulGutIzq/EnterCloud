@@ -120,30 +120,32 @@ public class InicioController {
                     if (selectedIndex >= 0) {
                         // Obtener el nombre del archivo seleccionado
                         String selectedFileName = vista.jList1.getModel().getElementAt(selectedIndex);
-                        File fileToDelete = new File(dirActual + File.separator + selectedFileName);
+                        File fileToDelete = new File(dirActual + File.separator + selectedFileName.split(" - ")[0]); // Quitar el tamaño
 
-                        int confirmation = JOptionPane.showConfirmDialog(
-                                vista,
-                                "¿Está seguro de que desea eliminar el archivo: '" + selectedFileName + "'?",
-                                "Confirmar eliminación",
-                                JOptionPane.YES_NO_OPTION
-                        );
+                        if (puedeEliminar(fileToDelete)) {
+                            int confirmation = JOptionPane.showConfirmDialog(
+                                    vista,
+                                    "¿Está seguro de que desea eliminar el archivo: '" + selectedFileName + "'?",
+                                    "Confirmar eliminación",
+                                    JOptionPane.YES_NO_OPTION
+                            );
 
-                        if (confirmation == JOptionPane.YES_OPTION) {
-                            if (fileToDelete.exists() && fileToDelete.delete()) {
-                                // Refrescar la lista de archivos
-                                listarArchivos(dirActual);
+                            if (confirmation == JOptionPane.YES_OPTION) {
+                                if (fileToDelete.delete()) {
+                                    // Refrescar la lista de archivos
+                                    listarArchivos(dirActual);
 
-                                // Notificar al usuario
-                                JOptionPane.showMessageDialog(vista,
-                                        "Archivo eliminado exitosamente.",
-                                        "Eliminación completada",
-                                        JOptionPane.INFORMATION_MESSAGE);
-                            } else {
-                                JOptionPane.showMessageDialog(vista,
-                                        "No se pudo eliminar el archivo. Verifique si está en uso o tiene permisos suficientes.",
-                                        "Error",
-                                        JOptionPane.ERROR_MESSAGE);
+                                    // Notificar al usuario
+                                    JOptionPane.showMessageDialog(vista,
+                                            "Archivo eliminado exitosamente.",
+                                            "Eliminación completada",
+                                            JOptionPane.INFORMATION_MESSAGE);
+                                } else {
+                                    JOptionPane.showMessageDialog(vista,
+                                            "No se pudo eliminar el archivo. Verifique si está en uso o tiene permisos suficientes.",
+                                            "Error",
+                                            JOptionPane.ERROR_MESSAGE);
+                                }
                             }
                         }
                     } else {
@@ -204,20 +206,30 @@ public class InicioController {
                     System.out.println("Selección cancelada.");
                     // Solo ocultamos el panel, sin ninguna otra acción
                 }
-            } else {
+            } else if (vista.paginaSubir.getTitle().equals("Descargar")) {
                 if (actionCommand.equals(vista.jFileChooser2.APPROVE_SELECTION)) {
-                    File archSel = new File(dirActual + File.separatorChar + vista.jList1.getSelectedValue());
-                    try {
-                        Files.copy(Path.of(archSel.getAbsolutePath()),
-                                Path.of(vista.jFileChooser2.getSelectedFile().getAbsolutePath() + File.separatorChar + archSel.getName()));
-                    } catch (IOException ex) {
-                        Logger.getLogger(InicioController.class.getName()).log(Level.SEVERE, null, ex);
+                    File archSel = new File(dirActual + File.separatorChar + vista.jList1.getSelectedValue().split(" - ")[0]);
+                    File destino = vista.jFileChooser2.getSelectedFile(); // Directorio destino
+
+                    if (destino.isDirectory()) {
+                        try {
+                            // Copiar archivo al directorio seleccionado
+                            Files.copy(Path.of(archSel.getAbsolutePath()),
+                                    Path.of(destino.getAbsolutePath() + File.separatorChar + archSel.getName()),
+                                    StandardCopyOption.REPLACE_EXISTING);
+                            JOptionPane.showMessageDialog(vista, "Archivo descargado correctamente en: " + destino.getAbsolutePath(), "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                        } catch (IOException ex) {
+                            JOptionPane.showMessageDialog(vista, "Error al descargar el archivo: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        }
+                    } else {
+                        JOptionPane.showMessageDialog(vista, "Por favor, selecciona un directorio válido.", "Error", JOptionPane.WARNING_MESSAGE);
                     }
                 } else if (actionCommand.equals(vista.jFileChooser2.CANCEL_SELECTION)) {
-                    System.out.println("Selección cancelada.");
+                    System.out.println("Descarga cancelada por el usuario.");
                 }
             }
 
+            // Ocultar el diálogo del JFileChooser
             vista.paginaSubir.setVisible(false);
         });
 
@@ -242,16 +254,19 @@ public class InicioController {
     private void listarArchivos(String dir) {
         List<String> ficheros = new ArrayList<>();
         File[] listaArchivos = new File(dir).listFiles();
-        for (int i = 0; i < listaArchivos.length; i++) {
-            ficheros.add(listaArchivos[i].getName());
+
+        if (listaArchivos != null) {
+            for (File archivo : listaArchivos) {
+                String nombre = archivo.getName();
+                String tamano = archivo.isDirectory() ? "[Carpeta]" : formatSize(archivo.length());
+                ficheros.add(nombre + " - " + tamano);
+            }
         }
-        String[] listaNombresArchivos = new String[ficheros.size()];
-        for (int i = 0; i < ficheros.size(); i++) {
-            listaNombresArchivos[i] = ficheros.get(i);
-        }
-        //modifico codigo nativo
+
+        String[] listaNombresArchivos = ficheros.toArray(new String[0]);
+
+        // Modifico código para incluir tamaño en la lista
         vista.jList1.setModel(new javax.swing.AbstractListModel<String>() {
-            //String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
             public int getSize() {
                 return listaNombresArchivos.length;
             }
@@ -260,6 +275,18 @@ public class InicioController {
                 return listaNombresArchivos[i];
             }
         });
+    }
+
+    private String formatSize(long size) {
+        if (size < 1024) {
+            return size + " B";
+        } else if (size < 1024 * 1024) {
+            return String.format("%.2f KB", size / 1024.0);
+        } else if (size < 1024 * 1024 * 1024) {
+            return String.format("%.2f MB", size / (1024.0 * 1024.0));
+        } else {
+            return String.format("%.2f GB", size / (1024.0 * 1024.0 * 1024.0));
+        }
     }
 
     private void subirArchivos(File[] selectedFiles) {
@@ -350,4 +377,23 @@ public class InicioController {
             }
         });
     }
+
+    private boolean puedeEliminar(File archivo) {
+        if (!archivo.exists()) {
+            JOptionPane.showMessageDialog(vista, "El archivo no existe.", "Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+
+        // Intentar renombrar el archivo como prueba de que no está en uso
+        File archivoTemporal = new File(archivo.getAbsolutePath() + ".tmp");
+        boolean sePuedeRenombrar = archivo.renameTo(archivoTemporal);
+        if (sePuedeRenombrar) {
+            archivoTemporal.renameTo(archivo); // Restaurar el nombre original
+            return true;
+        } else {
+            JOptionPane.showMessageDialog(vista, "El archivo está en uso por otra aplicación o no tienes permisos.", "Error", JOptionPane.WARNING_MESSAGE);
+            return false;
+        }
+    }
+
 }

@@ -46,7 +46,7 @@ public class CustomRenderer extends DefaultListCellRenderer {
         JPanel panel = new JPanel(new BorderLayout());
 
         // Crear y configurar un JLabel para mostrar el texto del elemento
-        JLabel label = new JLabel(value.toString());
+        JLabel label = new JLabel("    " + value.toString());
         label.setFont(new Font("Nunito Medium", Font.PLAIN, 13));
 
         // Crear y configurar un JButton para acciones adicionales
