@@ -5,8 +5,11 @@ import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import model.Cliente;
 import model.ClientesDAO;
 import view.Inicio;
@@ -113,6 +116,24 @@ public class LoginController {
         }
     }
 
+    private void registroLogin(String usuario) {
+    try (FileWriter writer = new FileWriter("log.txt", true)) { // 'true' para añadir al archivo sin sobrescribir
+        GregorianCalendar calendario = new GregorianCalendar();
+        int anio = calendario.get(Calendar.YEAR);
+        int mes = calendario.get(Calendar.MONTH) + 1; // Los meses empiezan en 0, por eso se suma 1
+        int dia = calendario.get(Calendar.DAY_OF_MONTH);
+        int hora = calendario.get(Calendar.HOUR_OF_DAY);
+        int minuto = calendario.get(Calendar.MINUTE);
+        int segundo = calendario.get(Calendar.SECOND);
+
+        String log = String.format("El usuario %s ha accedido el %d/%d/%d a las %02d:%02d:%02d%n", 
+                                    usuario, dia, mes, anio, hora, minuto, segundo);
+        writer.write(log);  // Escribir la línea en el archivo
+    } catch (IOException e) {
+        e.printStackTrace();  // Manejar error de escritura
+    }
+}
+    
     /**
      * Maneja la acción del botón de inicio de sesión. Valida las credenciales y
      * redirige al usuario o muestra un mensaje de error.
@@ -137,6 +158,7 @@ public class LoginController {
         if (esValido) {
             try {
                 irAInicio(correo);
+                registroLogin(correo);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
