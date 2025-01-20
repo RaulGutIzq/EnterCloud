@@ -39,14 +39,13 @@ public class InicioController {
         this.vista = vista;
         dirActual = (RAIZBUCKET + "/" + c.getId()).replace('/', File.separatorChar);
         listarArchivos(dirActual);
-
         vista.jList1.setCellRenderer(new CustomRenderer());
+        vista.barraProg.setStringPainted(true);
         vista.jPanel1.setFocusable(true); // Asegurarte de que el panel sea enfocable
         vista.jPanel1.requestFocusInWindow(); // Solicitar el foco para el panel
         vista.jPanel1.getInputMap(javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW)
                 .put(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1,
                         0), "showHelp");
-
         vista.jPanel1.getActionMap().put("showHelp", new javax.swing.AbstractAction() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -370,6 +369,27 @@ public class InicioController {
         }
     }
 
+    public void actualizarAlmacenamiento(int usado, int total) {
+        int porcentaje = (int) ((usado / (double) total) * 100);
+        vista.barraProg.setValue(porcentaje);
+        vista.barraProg.setStringPainted(true); // Asegúrate de que se muestre el porcentaje como texto
+        vista.lblAlmacenamiento.setText("Almacenamiento: " + usado + "MB / " + total + "MB");
+        vista.barraProg.repaint();
+    }
+
+    private void actualizarBarraProgreso(int almacenamientoOcupado, int capacidadTotal) {
+        int porcentaje = (int) ((almacenamientoOcupado / (double) capacidadTotal) * 100);
+
+        if (porcentaje < 0 || porcentaje > 100) {
+            System.err.println("Error: Porcentaje inválido: " + porcentaje); // Debug
+            return;
+        }
+
+        vista.barraProg.setValue(porcentaje);
+        vista.barraProg.setString(porcentaje + "% ocupado");
+        vista.barraProg.repaint();
+    }
+
     private void mostrarMenuDesplegable() {
         System.out.println("Mostrando menú desplegable...");
 
@@ -389,7 +409,8 @@ public class InicioController {
 
             // Actualizamos el texto del almacenamiento
             vista.lblAlmacenamiento.setText(String.format("Almacenamiento: %s / %.2fGB (%.2fGB disponibles)", almacenamientoOcupado, almacenamientoTotal, almacenamientoDisponible));
-
+            int porcentaje = (int) ((Double.parseDouble(almacenamientoOcupado) / almacenamientoTotal) * 100);
+            actualizarBarraProgreso((int) (Double.parseDouble(almacenamientoOcupado) * 1024), (int) (almacenamientoTotal * 1024));
             // Mostramos el menú
             vista.menuUsuario.setVisible(true);
         } catch (NumberFormatException e) {
@@ -456,5 +477,4 @@ public class InicioController {
             return false;
         }
     }
-
 }

@@ -28,3 +28,22 @@ El usuario raul@raul.com ha accedido el 13/1/2025 a las 12:49:42
 El usuario raul@raul.com ha accedido el 13/1/2025 a las 12:50:34
 El usuario raul@raul.com ha accedido el 13/1/2025 a las 13:02:23
 El usuario raul@raul.com ha accedido el 13/1/2025 a las 13:03:47
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 11:15:46
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 11:24:57
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 11:29:58
+Se ha subido el fichero 'Servicio virtualizado («Appliance»)-disk003.vdi' el 20/1/2025 a las 11:30:55
+Se ha subido el fichero 'Servicio virtualizado («Appliance»)-disk002.vdi' el 20/1/2025 a las 11:31:29
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 11:40:58
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 11:43:01
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 11:44:10
+Se ha subido el fichero 'Unattended-b45a1de0-376c-4519-996a-1cdd08622111-aux-iso.viso' el 20/1/2025 a las 11:44:29
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 11:45:01
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 11:46:51
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 11:55:48
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 12:07:24
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 12:08:18
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 12:12:38
+Se ha subido el fichero 'Servicio virtualizado («Appliance»)-disk004.vdi' el 20/1/2025 a las 12:14:26
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 12:16:21
+Se ha subido el fichero 'ALU_PSP_W-disk001.vdi' el 20/1/2025 a las 12:16:47
+El usuario coto@coto.com ha accedido el 20/1/2025 a las 12:19:54
