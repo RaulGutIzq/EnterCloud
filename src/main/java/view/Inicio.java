@@ -20,45 +20,46 @@ public class Inicio extends javax.swing.JFrame {
      * las propiedades iniciales de la ventana.
      */
     public Inicio() {
-    initComponents();
-    // Configuración inicial de la ventana
-    this.setSize(700, 600);
+        initComponents();
+        // Configuración inicial de la ventana
+        this.setSize(700, 600);
+        this.setSize(700, 600);
+        this.setIconImage(new ImageIcon(getClass().getResource("/logoSimpleSinFondoSinLetras.png")).getImage());
+        centrarVentana();
+        // Ocultar la sección de subir archivos hasta que sea necesaria
+        paginaSubir.setSize(650, 400);
+        paginaSubir.setVisible(false);
 
-    // Ocultar la sección de subir archivos hasta que sea necesaria
-    paginaSubir.setSize(650, 400);
-    paginaSubir.setVisible(false);
+        // Configurar el menú desplegable del usuario
+        menuUsuario.add(lblAlmacenamiento);
+        menuUsuario.add(new JPopupMenu.Separator());
+        menuUsuario.add(barraProg);
+        menuUsuario.add(new JPopupMenu.Separator());
+        menuUsuario.add(btnCerrarSesion);
+        // Agregar la barra de progreso al menú
 
-    // Configurar el menú desplegable del usuario
-    menuUsuario.add(lblAlmacenamiento);
-    menuUsuario.add(new JPopupMenu.Separator());
-    menuUsuario.add(btnCerrarSesion);
-    menuUsuario.add(new JPopupMenu.Separator());
-    menuUsuario.add(jProgressBar1);  // Agregar la barra de progreso al menú
+        // Establecer texto inicial de los elementos del menú
+        lblAlmacenamiento.setText("Almacenamiento: ");
+        btnCerrarSesion.setText("Cerrar Sesión");
+        // Asignar un icono a la ventana
+        this.setIconImage(new ImageIcon(getClass().getResource("/logoSimpleSinFondoSinLetras.png")).getImage());
 
-    // Establecer texto inicial de los elementos del menú
-    lblAlmacenamiento.setText("Almacenamiento: ");
-    btnCerrarSesion.setText("Cerrar Sesión");
+        // Centrar la ventana en la pantalla
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width / 2 - this.getSize().width / 2,
+                dim.height / 2 - this.getSize().height / 2);
 
-    // Asignar un icono a la ventana
-    this.setIconImage(new ImageIcon(getClass().getResource("/logoSimpleSinFondoSinLetras.png")).getImage());
+        // Configurar barras de desplazamiento personalizadas
+        JScrollBar verticalScrollBar = jScrollPane1.getVerticalScrollBar();
+        JScrollBar horizontalScrollBar = jScrollPane1.getHorizontalScrollBar();
 
-    // Centrar la ventana en la pantalla
-    Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
-    this.setLocation(dim.width / 2 - this.getSize().width / 2,
-            dim.height / 2 - this.getSize().height / 2);
+        verticalScrollBar.setUI(new CustomScrollBarUI());
+        horizontalScrollBar.setUI(new CustomScrollBarUI());
 
-    // Configurar barras de desplazamiento personalizadas
-    JScrollBar verticalScrollBar = jScrollPane1.getVerticalScrollBar();
-    JScrollBar horizontalScrollBar = jScrollPane1.getHorizontalScrollBar();
-
-    verticalScrollBar.setUI(new CustomScrollBarUI());
-    horizontalScrollBar.setUI(new CustomScrollBarUI());
-
-    // Ajustar el tamaño de las barras de desplazamiento
-    verticalScrollBar.setPreferredSize(new Dimension(12, Integer.MAX_VALUE));
-    horizontalScrollBar.setPreferredSize(new Dimension(Integer.MAX_VALUE, 12));
-}
-
+        // Ajustar el tamaño de las barras de desplazamiento
+        verticalScrollBar.setPreferredSize(new Dimension(12, Integer.MAX_VALUE));
+        horizontalScrollBar.setPreferredSize(new Dimension(Integer.MAX_VALUE, 12));
+    }
 
     /**
      * Inicialización automática de componentes generada por el editor.
@@ -76,7 +77,7 @@ public class Inicio extends javax.swing.JFrame {
         btnMenu = new javax.swing.JButton();
         lblAlmacenamiento = new javax.swing.JLabel();
         btnCerrarSesion = new javax.swing.JButton();
-        jProgressBar1 = new javax.swing.JProgressBar();
+        barraProg = new javax.swing.JProgressBar();
         panelInferior = new javax.swing.JPanel();
         botonInicio = new javax.swing.JButton();
         botonFavoritos = new javax.swing.JButton();
@@ -141,7 +142,7 @@ public class Inicio extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(panelSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelSuperiorLayout.createSequentialGroup()
-                        .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(barraProg, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(btnCerrarSesion))
                     .addComponent(lblAlmacenamiento, javax.swing.GroupLayout.PREFERRED_SIZE, 131, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -165,7 +166,7 @@ public class Inicio extends javax.swing.JFrame {
                     .addGroup(panelSuperiorLayout.createSequentialGroup()
                         .addGap(9, 9, 9)
                         .addGroup(panelSuperiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jProgressBar1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(barraProg, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel1))
                         .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         );
@@ -270,10 +271,41 @@ public class Inicio extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnMenuActionPerformed
-        // TODO add your handling code here:
+        menuUsuario.show(btnMenu, 0, btnMenu.getHeight());
     }//GEN-LAST:event_btnMenuActionPerformed
 
+    private void configurarMenuUsuario() {
+        // Configura el layout del menú
+        menuUsuario.setLayout(new javax.swing.BoxLayout(menuUsuario, javax.swing.BoxLayout.Y_AXIS));
+
+        // Etiqueta de almacenamiento
+        lblAlmacenamiento.setText("Almacenamiento: 0%");
+        menuUsuario.add(lblAlmacenamiento);
+
+        // Separador
+        menuUsuario.add(new JPopupMenu.Separator());
+
+        // Barra de progreso
+        barraProg.setStringPainted(true); // Mostrar el porcentaje
+        barraProg.setValue(50);          // Valor inicial (ejemplo, cámbialo según tu lógica)
+        menuUsuario.add(barraProg);
+
+        // Separador
+        menuUsuario.add(new JPopupMenu.Separator());
+
+        // Botón de cierre de sesión
+        btnCerrarSesion.setText("Cerrar Sesión");
+        menuUsuario.add(btnCerrarSesion);
+    }
+
+    private void centrarVentana() {
+        Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
+        this.setLocation(dim.width / 2 - this.getSize().width / 2,
+                dim.height / 2 - this.getSize().height / 2);
+    }
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    public javax.swing.JProgressBar barraProg;
     public javax.swing.JButton botonAyuda;
     public javax.swing.JButton botonFavoritos;
     public javax.swing.JButton botonInicio;
@@ -284,7 +316,6 @@ public class Inicio extends javax.swing.JFrame {
     public javax.swing.JLabel jLabel1;
     public javax.swing.JList<String> jList1;
     public javax.swing.JPanel jPanel1;
-    public javax.swing.JProgressBar jProgressBar1;
     public javax.swing.JScrollPane jScrollPane1;
     public javax.swing.JLabel lblAlmacenamiento;
     public javax.swing.JPopupMenu menuUsuario;
@@ -292,6 +323,4 @@ public class Inicio extends javax.swing.JFrame {
     public javax.swing.JPanel panelInferior;
     public javax.swing.JPanel panelSuperior;
     // End of variables declaration//GEN-END:variables
-
-
 }
