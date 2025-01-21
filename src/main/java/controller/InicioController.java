@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -19,13 +22,17 @@ import javax.swing.JFrame;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import model.Cliente;
-import model.ClientesDAO;
+import model.DatabaseConnection;
 import view.Ayuda;
 import view.CustomRenderer;
 import view.Inicio;
 import view.Login;
 
 /**
+ * Controlador de la vista principal que maneja la lógica de negocio para el
+ * manejo de archivos y la interacción con el usuario. Proporciona
+ * funcionalidades como cargar archivos, subir, descargar, eliminar, y mostrar
+ * el almacenamiento disponible.
  *
  * @author Daniel Fraile Leon
  */
@@ -34,13 +41,23 @@ public class InicioController {
     private static final String RAIZBUCKET = "E:/DAM2/DI";
     private Inicio vista;
     private String dirActual;
+    private Cliente clienteActual;
 
+    /**
+     * Constructor del controlador de la vista principal.
+     *
+     * @param vista Vista principal de la aplicación.
+     * @param c Cliente actual que realiza las operaciones.
+     */
     public InicioController(Inicio vista, Cliente c) {
         this.vista = vista;
         dirActual = (RAIZBUCKET + "/" + c.getId()).replace('/', File.separatorChar);
         listarArchivos(dirActual);
+        this.clienteActual = c;
 
         vista.jList1.setCellRenderer(new CustomRenderer());
+        vista.barraProg.setStringPainted(true);
+
         vista.jPanel1.setFocusable(true); // Asegurarte de que el panel sea enfocable
         vista.jPanel1.requestFocusInWindow(); // Solicitar el foco para el panel
         vista.jPanel1.getInputMap(javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW)
@@ -186,85 +203,60 @@ public class InicioController {
 
         vista.jFileChooser2.addActionListener(evt -> {
             String actionCommand = evt.getActionCommand();
-            System.out.println("ActionCommand: " + actionCommand); // Debug del comando
-            if (vista.paginaSubir.getTitle().equals("Subir")) {
-                if (actionCommand.equals(vista.jFileChooser2.APPROVE_SELECTION)) {
-                    // Obtenemos los archivos seleccionados
-                    File[] selectedFiles = vista.jFileChooser2.getSelectedFiles();
-                    if (selectedFiles == null || selectedFiles.length == 0) {
-                        // Si no se seleccionaron múltiples, intentamos con uno
-                        File selectedFile = vista.jFileChooser2.getSelectedFile();
-                        if (selectedFile != null) {
-                            selectedFiles = new File[]{selectedFile};
-                        }
-                    }
+            Cliente clienteActual = obtenerClienteActual();  // Asume que existe un método que devuelve el cliente autenticado
+            GregorianCalendar calendario = new GregorianCalendar();
+            int anio = calendario.get(Calendar.YEAR);
+            int mes = calendario.get(Calendar.MONTH) + 1;
+            int dia = calendario.get(Calendar.DAY_OF_MONTH);
+            int hora = calendario.get(Calendar.HOUR_OF_DAY);
+            int minuto = calendario.get(Calendar.MINUTE);
+            int segundo = calendario.get(Calendar.SECOND);
 
-                    // Si hay archivos seleccionados, intentamos subirlos
-                    if (selectedFiles != null && selectedFiles.length > 0) {
-                        subirArchivos(selectedFiles);
-                        try (FileWriter writer = new FileWriter("log.txt", true)) {
-                            GregorianCalendar calendario = new GregorianCalendar();
-                            int anio = calendario.get(Calendar.YEAR);
-                            int mes = calendario.get(Calendar.MONTH) + 1;
-                            int dia = calendario.get(Calendar.DAY_OF_MONTH);
-                            int hora = calendario.get(Calendar.HOUR_OF_DAY);
-                            int minuto = calendario.get(Calendar.MINUTE);
-                            int segundo = calendario.get(Calendar.SECOND);
+            String fechaHora = String.format("%d-%02d-%02d %02d:%02d:%02d", anio, mes, dia, hora, minuto, segundo);
 
-                            for (File file : selectedFiles) {
-                                String log = String.format("Se ha subido el fichero '%s' el %d/%d/%d a las %02d:%02d:%02d%n",
-                                        file.getName(), dia, mes, anio, hora, minuto, segundo);
-                                writer.write(log);
+            if (clienteActual != null) {
+                if (vista.paginaSubir.getTitle().equals("Subir")) {
+                    if (actionCommand.equals(vista.jFileChooser2.APPROVE_SELECTION)) {
+                        File[] selectedFiles = vista.jFileChooser2.getSelectedFiles();
+                        if (selectedFiles == null || selectedFiles.length == 0) {
+                            File selectedFile = vista.jFileChooser2.getSelectedFile();
+                            if (selectedFile != null) {
+                                selectedFiles = new File[]{selectedFile};
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
+
+                        if (selectedFiles != null && selectedFiles.length > 0) {
+                            subirArchivos(selectedFiles);
+                            registrarOperacionEnBD(clienteActual.getId(), selectedFiles, "subidas", fechaHora);
+                        }
+                    } else if (actionCommand.equals(vista.jFileChooser2.CANCEL_SELECTION)) {
+                        System.out.println("Selección de subida cancelada.");
                     }
+                } else if (vista.paginaSubir.getTitle().equals("Descargar")) {
+                    if (actionCommand.equals(vista.jFileChooser2.APPROVE_SELECTION)) {
+                        File archSel = new File(dirActual + File.separatorChar + vista.jList1.getSelectedValue().split(" - ")[0]);
+                        File destino = vista.jFileChooser2.getSelectedFile();
 
-                    // Ocultamos el panel después de procesar
-                } else if (actionCommand.equals(vista.jFileChooser2.CANCEL_SELECTION)) {
-                    System.out.println("Selección cancelada.");
-                    // Solo ocultamos el panel, sin ninguna otra acción
-                }
-            } else if (vista.paginaSubir.getTitle().equals("Descargar")) {
-                if (actionCommand.equals(vista.jFileChooser2.APPROVE_SELECTION)) {
-                    File archSel = new File(dirActual + File.separatorChar + vista.jList1.getSelectedValue().split(" - ")[0]);
-                    File destino = vista.jFileChooser2.getSelectedFile(); // Directorio destino
-
-                    if (destino.isDirectory()) {
-                        try {
-                            // Copiar archivo al directorio seleccionado
-                            Files.copy(Path.of(archSel.getAbsolutePath()),
-                                    Path.of(destino.getAbsolutePath() + File.separatorChar + archSel.getName()),
-                                    StandardCopyOption.REPLACE_EXISTING);
-                            JOptionPane.showMessageDialog(vista, "Archivo descargado correctamente en: " + destino.getAbsolutePath(), "Éxito", JOptionPane.INFORMATION_MESSAGE);
-                            try (FileWriter writer = new FileWriter("log.txt", true)) {
-                                GregorianCalendar calendario = new GregorianCalendar();
-                                int anio = calendario.get(Calendar.YEAR);
-                                int mes = calendario.get(Calendar.MONTH) + 1;
-                                int dia = calendario.get(Calendar.DAY_OF_MONTH);
-                                int hora = calendario.get(Calendar.HOUR_OF_DAY);
-                                int minuto = calendario.get(Calendar.MINUTE);
-                                int segundo = calendario.get(Calendar.SECOND);
-
-                                String log = String.format("Se ha descargado el fichero '%s' el %d/%d/%d a las %02d:%02d:%02d en el directorio '%s'%n",
-                                        archSel.getName(), dia, mes, anio, hora, minuto, segundo, destino.getAbsolutePath());
-                                writer.write(log);
-                            } catch (IOException e) {
-                                e.printStackTrace();
+                        if (destino.isDirectory()) {
+                            try {
+                                Files.copy(Path.of(archSel.getAbsolutePath()),
+                                        Path.of(destino.getAbsolutePath() + File.separatorChar + archSel.getName()),
+                                        StandardCopyOption.REPLACE_EXISTING);
+                                JOptionPane.showMessageDialog(vista, "Archivo descargado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                                registrarOperacionEnBD(clienteActual.getId(), new File[]{archSel}, "descargas", fechaHora);
+                            } catch (IOException ex) {
+                                JOptionPane.showMessageDialog(vista, "Error al descargar: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                             }
-                        } catch (IOException ex) {
-                            JOptionPane.showMessageDialog(vista, "Error al descargar el archivo: " + ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                        } else {
+                            JOptionPane.showMessageDialog(vista, "Selecciona un directorio válido.", "Error", JOptionPane.WARNING_MESSAGE);
                         }
-                    } else {
-                        JOptionPane.showMessageDialog(vista, "Por favor, selecciona un directorio válido.", "Error", JOptionPane.WARNING_MESSAGE);
+                    } else if (actionCommand.equals(vista.jFileChooser2.CANCEL_SELECTION)) {
+                        System.out.println("Descarga cancelada.");
                     }
-                } else if (actionCommand.equals(vista.jFileChooser2.CANCEL_SELECTION)) {
-                    System.out.println("Descarga cancelada por el usuario.");
                 }
+            } else {
+                System.out.println("Error: No se pudo obtener el cliente actual.");
             }
-
-            // Ocultar el diálogo del JFileChooser
             vista.paginaSubir.setVisible(false);
         });
 
@@ -286,7 +278,12 @@ public class InicioController {
         });
     }
 
-    private void listarArchivos(String dir) {
+    /**
+     * Lista los archivos en el directorio especificado y actualiza la vista.
+     *
+     * @param dir El directorio cuyo contenido se listará.
+     */
+    protected void listarArchivos(String dir) {
         List<String> ficheros = new ArrayList<>();
         File[] listaArchivos = new File(dir).listFiles();
 
@@ -312,7 +309,14 @@ public class InicioController {
         });
     }
 
-    private String formatSize(long size) {
+    /**
+     * Formatea el tamaño de un archivo en una cadena legible (en bytes, KB, MB,
+     * GB).
+     *
+     * @param size El tamaño del archivo en bytes.
+     * @return El tamaño formateado en una cadena.
+     */
+    protected String formatSize(long size) {
         if (size < 1024) {
             return size + " B";
         } else if (size < 1024 * 1024) {
@@ -324,21 +328,49 @@ public class InicioController {
         }
     }
 
-    private void subirArchivos(File[] selectedFiles) {
-        for (File arch : selectedFiles) {
-            System.out.println(arch.getName());
-        }
-        for (File arch : selectedFiles) {
+    /**
+     * Realiza la subida de los archivos seleccionados al directorio actual.
+     *
+     * @param selectedFiles Los archivos seleccionados para subir.
+     */
+    public void subirArchivos(File[] archivos) {
+        for (File archivo : archivos) {
+            // Ruta de destino
+            File destino = new File("E:\\DAM2\\DI\\36\\" + archivo.getName());
+
+            // Asegurarse de que el directorio de destino existe
+            if (!destino.getParentFile().exists()) {
+                // Crear el directorio si no existe
+                boolean directorioCreado = destino.getParentFile().mkdirs();  // mkdirs crea todos los directorios necesarios
+                if (directorioCreado) {
+                    System.out.println("Directorio creado: " + destino.getParentFile());
+                } else {
+                    System.out.println("No se pudo crear el directorio: " + destino.getParentFile());
+                }
+            }
+
+            // Copiar el archivo
             try {
-                Files.copy(Path.of(arch.getAbsolutePath()), Path.of(this.dirActual + File.separator + arch.getName()), StandardCopyOption.REPLACE_EXISTING);
-            } catch (IOException ex) {
-                Logger.getLogger(Inicio.class.getName()).log(Level.SEVERE, null, ex);
+                Files.copy(archivo.toPath(), destino.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Archivo copiado con éxito: " + archivo.getName());
+            } catch (IOException e) {
+                System.out.println("Error al copiar el archivo: " + archivo.getName());
+                e.printStackTrace();
             }
         }
-        this.listarArchivos(dirActual);
     }
 
-    private String calcAlmacenamiento() {
+    /**
+     * Calcula el espacio de almacenamiento ocupado en el directorio raíz del
+     * bucket.
+     *
+     * Este método recorre recursivamente los directorios y calcula el tamaño
+     * total de los archivos en el directorio raíz del bucket, luego lo
+     * convierte a gigabytes y lo devuelve como una cadena de texto.
+     *
+     * @return Una cadena representando el almacenamiento ocupado en GB.
+     */
+    protected String calcAlmacenamiento() {
         File dir = new File(dirActual);
         while (!dir.getParentFile().getAbsolutePath().equals(RAIZBUCKET.replace('/', File.separatorChar))) {
             dir = dir.getParentFile();
@@ -347,7 +379,39 @@ public class InicioController {
         return String.format("%.2f", espacioOcupado / (1024.0 * 1024.0 * 1024.0)); // Convertir bytes a GB
     }
 
-    private long longDir(File dir) {
+    public void actualizarAlmacenamiento(int usado, int total) {
+        int porcentaje = (int) ((usado / (double) total) * 100);
+        vista.barraProg.setValue(porcentaje);
+        vista.barraProg.setStringPainted(true); // Asegúrate de que se muestre el porcentaje como texto
+        vista.lblAlmacenamiento.setText("Almacenamiento: " + usado + "MB / " + total + "MB");
+        vista.barraProg.repaint();
+    }
+
+    private void actualizarBarraProgreso(int almacenamientoOcupado, int capacidadTotal) {
+        int porcentaje = (int) ((almacenamientoOcupado / (double) capacidadTotal) * 100);
+
+        if (porcentaje < 0 || porcentaje > 100) {
+            System.err.println("Error: Porcentaje inválido: " + porcentaje); // Debug
+            return;
+        }
+
+        vista.barraProg.setValue(porcentaje);
+        vista.barraProg.setString(porcentaje + "% ocupado");
+        vista.barraProg.repaint();
+    }
+    
+    /**
+     * Calcula el tamaño total de un directorio y sus subdirectorios de manera
+     * recursiva.
+     *
+     * Este método recorre un directorio y, si encuentra subdirectorios, los
+     * explora de manera recursiva, sumando el tamaño de todos los archivos
+     * encontrados.
+     *
+     * @param dir El directorio cuyo tamaño se desea calcular.
+     * @return El tamaño total del directorio y sus archivos en bytes.
+     */
+    protected long longDir(File dir) {
         long tam = 0;
         if (dir.isDirectory()) {
             for (File arch : dir.listFiles()) {
@@ -359,7 +423,16 @@ public class InicioController {
         return tam;
     }
 
-    private void btnMenuActionPerformed(java.awt.event.ActionEvent evt) {
+    /**
+     * Maneja la acción de hacer clic en el botón del menú.
+     *
+     * Este método verifica si el menú está visible o no. Si el menú está
+     * visible, lo oculta; si no lo está, lo muestra. Esto se usa para alternar
+     * la visibilidad del menú desplegable del usuario.
+     *
+     * @param evt El evento de acción asociado al clic en el botón.
+     */
+    protected void btnMenuActionPerformed(java.awt.event.ActionEvent evt) {
         // Verificamos si el método se ejecuta correctamente
         System.out.println("Botón de menú clickeado");
 
@@ -370,7 +443,15 @@ public class InicioController {
         }
     }
 
-    private void mostrarMenuDesplegable() {
+    /**
+     * Muestra el menú desplegable y actualiza la información de almacenamiento
+     * disponible.
+     *
+     * Este método calcula el almacenamiento ocupado y disponible, y luego
+     * actualiza la etiqueta de almacenamiento en la vista. A continuación,
+     * muestra el menú de usuario.
+     */
+    protected void mostrarMenuDesplegable() {
         System.out.println("Mostrando menú desplegable...");
 
         // Verificamos el valor calculado del almacenamiento
@@ -390,6 +471,8 @@ public class InicioController {
             // Actualizamos el texto del almacenamiento
             vista.lblAlmacenamiento.setText(String.format("Almacenamiento: %s / %.2fGB (%.2fGB disponibles)", almacenamientoOcupado, almacenamientoTotal, almacenamientoDisponible));
 
+            int porcentaje = (int) ((Double.parseDouble(almacenamientoOcupado) / almacenamientoTotal) * 100);
+            actualizarBarraProgreso((int) (Double.parseDouble(almacenamientoOcupado) * 1024), (int) (almacenamientoTotal * 1024));
             // Mostramos el menú
             vista.menuUsuario.setVisible(true);
         } catch (NumberFormatException e) {
@@ -399,28 +482,59 @@ public class InicioController {
         }
     }
 
-    private void menuUsuarioFocusLost(java.awt.event.FocusEvent evt) {
+    /**
+     * Maneja el evento cuando el menú de usuario pierde el foco.
+     *
+     * Este método oculta el menú de usuario cuando se detecta que el foco ha
+     * sido perdido, lo que significa que el usuario ya no está interactuando
+     * con él.
+     *
+     * @param evt El evento de foco perdido.
+     */
+    protected void menuUsuarioFocusLost(java.awt.event.FocusEvent evt) {
         // TODO add your handling code here:
         vista.menuUsuario.setVisible(false);
     }
 
-    private void btnCerrarSesionActionPerformed(java.awt.event.ActionEvent evt) {
+    /**
+     * Maneja el evento de acción para cerrar sesión.
+     *
+     * Este método cierra la sesión del usuario actual y muestra la vista de
+     * login. Además, se asegura de que el menú de usuario esté oculto antes de
+     * cerrar la ventana.
+     *
+     * @param evt El evento de acción asociado al clic en el botón de cerrar
+     * sesión.
+     */
+    protected void btnCerrarSesionActionPerformed(java.awt.event.ActionEvent evt) {
         try {
-            ClientesDAO model = new ClientesDAO("Clientes.dat", "r");
+            // Crear la vista y el controlador para la pantalla de login
             Login view = new Login();
-            LoginController controlador = new LoginController(model, view);
+            LoginController controlador = new LoginController(view);  // No es necesario pasar el modelo ClientesDAO
+
+            // Mostrar la vista de login
             view.setVisible(true);
+
+            // Verificar si el menú de usuario está visible y ocultarlo
             if (vista.menuUsuario.isVisible()) {
                 vista.menuUsuario.setVisible(false);
             }
+
+            // Cerrar la vista actual (la que contiene el menú del usuario)
             this.vista.dispose();
 
-        } catch (FileNotFoundException ex) {
-            System.out.println("Fichero Clientes.dat no encontrado.");
+        } catch (Exception ex) {
+            System.out.println("Error al cerrar sesión: " + ex.getMessage());
         }
     }
 
-    public void listaObjetosLocales() {
+    /**
+     * Lista los archivos y carpetas en el directorio raíz de la unidad C:.
+     *
+     * Este método obtiene una lista de archivos y carpetas en el directorio
+     * raíz de la unidad C: y la muestra en la vista de la interfaz de usuario.
+     */
+    protected void listaObjetosLocales() {
         File[] ficherosFile = new File("C:/").listFiles();
         String[] ficheros = new String[ficherosFile.length];
         for (int i = 0; i < ficherosFile.length; i++) {
@@ -438,8 +552,30 @@ public class InicioController {
             }
         });
     }
+// Método auxiliar para registrar las operaciones en la base de datos
 
-    private boolean puedeEliminar(File archivo) {
+    private void registrarOperacionEnBD(int idCliente, File[] archivos, String tabla, String fechaHora) {
+        String insertSql = String.format("INSERT INTO %s (idCliente, fechaHoraLogin, nombreFichero) VALUES (?, ?, ?)", tabla);
+        try (Connection conn = DatabaseConnection.connect(); PreparedStatement stmt = conn.prepareStatement(insertSql)) {
+            for (File archivo : archivos) {
+                stmt.setInt(1, idCliente);
+                stmt.setString(2, fechaHora);
+                stmt.setString(3, archivo.getName());
+                stmt.executeUpdate();
+            }
+            System.out.println("Operación registrada correctamente en la tabla: " + tabla);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Verifica si el archivo puede ser eliminado.
+     *
+     * @param archivo El archivo que se desea verificar.
+     * @return true si el archivo puede ser eliminado, false si no.
+     */
+    protected boolean puedeEliminar(File archivo) {
         if (!archivo.exists()) {
             JOptionPane.showMessageDialog(vista, "El archivo no existe.", "Error", JOptionPane.ERROR_MESSAGE);
             return false;
@@ -455,6 +591,10 @@ public class InicioController {
             JOptionPane.showMessageDialog(vista, "El archivo está en uso por otra aplicación o no tienes permisos.", "Error", JOptionPane.WARNING_MESSAGE);
             return false;
         }
+    }
+
+    public Cliente obtenerClienteActual() {
+        return this.clienteActual;  // Devuelve el cliente que fue asignado en el constructor
     }
 
 }

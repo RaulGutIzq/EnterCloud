@@ -1,43 +1,42 @@
 package controller;
 
-import java.io.BufferedReader;
-import java.io.EOFException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import model.Cliente;
-import model.ClientesDAO;
+import model.DatabaseConnection;
 import view.Inicio;
 import view.Login;
 
+import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
+import java.util.Scanner;
+
 /**
  * Controlador para manejar la lógica de la pantalla de inicio de sesión.
- * Gestiona las interacciones entre la vista `Login` y el modelo `ClientesDAO`.
- * Permite validar credenciales, manejar errores, y redirigir al usuario al
- * inicio si las credenciales son correctas.
+ * Gestiona las interacciones entre la vista `Login` y la base de datos. Permite
+ * validar credenciales, manejar errores, y redirigir al usuario al inicio si
+ * las credenciales son correctas.
  *
  * @author CDC
  */
 public class LoginController {
 
     private static final String RAIZBUCKET = "E:/DAM2/DI"; // Ruta raíz para almacenar datos del usuario.
-    private ClientesDAO cliente; // Modelo para interactuar con los datos de clientes.
     private Login vista; // Vista para la pantalla de inicio de sesión.
 
     /**
-     * Constructor que inicializa el controlador con el modelo y la vista.
-     * Configura los eventos de interacción con la vista.
+     * Constructor que inicializa el controlador con la vista. Configura los
+     * eventos de interacción con la vista.
      *
-     * @param cliente Instancia del modelo de datos de clientes.
      * @param vista Vista de inicio de sesión.
      */
-    public LoginController(ClientesDAO cliente, Login vista) {
-        this.cliente = cliente;
+    public LoginController(Login vista) {
         this.vista = vista;
 
         // Configuración de eventos de la vista
@@ -68,35 +67,8 @@ public class LoginController {
      * @throws IOException Si ocurre un error al acceder a los datos del
      * cliente.
      */
-    private void irAInicio(String correo) throws IOException {
-        Cliente c = null;
-        ClientesDAO fich = null;
-        try {
-            fich = new ClientesDAO("Clientes.dat", "r");
-            try {
-                while (true) {  // Busca al cliente en el archivo de datos.
-                    c = fich.leer();
-                    if (c.getCorreo().equals(correo)) {
-                        break;
-                    }
-                }
-            } catch (EOFException eof) {
-                c = null;
-            }
-        } catch (FileNotFoundException ex) {
-            System.err.println("Archivo no encontrado: " + ex.getMessage());
-        } catch (IOException ex) {
-            System.err.println("Error de I/O: " + ex.getMessage());
-        } finally {
-            if (fich != null) {
-                try {
-                    fich.cerrar();
-                } catch (IOException e) {
-                    System.err.println("Error al cerrar: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        }
+    protected void irAInicio(String correo) throws IOException {
+        Cliente c = obtenerClientePorCorreo(correo);
         if (c != null) {
             // Crea el directorio raíz del usuario si no existe.
             File raizUser = new File((RAIZBUCKET + "/" + c.getId()).replace('/', File.separatorChar));
@@ -106,48 +78,118 @@ public class LoginController {
                 }
             }
 
-            // Redirige a la pantalla de inicio.
-            Inicio inicio = new Inicio();
-            new InicioController(inicio, c);
-            inicio.setVisible(true);
-            this.vista.setVisible(false);
+            // Verifica si la ventana de inicio ya está visible o no.
+            if (this.vista instanceof Login) {
+                // Si la vista actual es el login, podemos redirigir y crear el controlador de la ventana de inicio
+                Inicio inicio = new Inicio();
+                new InicioController(inicio, c);
+                inicio.setVisible(true);
+
+                // Escondemos la vista actual (login) sin crear una nueva instancia.
+                this.vista.setVisible(false);
+            }
         } else {
-            System.err.println("No se ha encontrado el cliente: " + correo + " en Clientes.dat");
+            System.err.println("No se ha encontrado el cliente: " + correo + " en la base de datos");
         }
     }
 
-    private void registroLogin(String usuario) {
-    try (FileWriter writer = new FileWriter("log.txt", true)) { // 'true' para añadir al archivo sin sobrescribir
-        GregorianCalendar calendario = new GregorianCalendar();
-        int anio = calendario.get(Calendar.YEAR);
-        int mes = calendario.get(Calendar.MONTH) + 1; // Los meses empiezan en 0, por eso se suma 1
-        int dia = calendario.get(Calendar.DAY_OF_MONTH);
-        int hora = calendario.get(Calendar.HOUR_OF_DAY);
-        int minuto = calendario.get(Calendar.MINUTE);
-        int segundo = calendario.get(Calendar.SECOND);
+    /**
+     * Consulta la base de datos para obtener los detalles del cliente por su
+     * correo.
+     *
+     * @param correo Correo del cliente.
+     * @return Cliente si se encuentra en la base de datos, de lo contrario
+     * null.
+     */
+    private Cliente obtenerClientePorCorreo(String correo) {
+        String sql = "SELECT Id, correo, telf_contacto, plan_id FROM clientes WHERE correo = ?";
+        Cliente cliente = null;
 
-        String log = String.format("El usuario %s ha accedido el %d/%d/%d a las %02d:%02d:%02d%n", 
-                                    usuario, dia, mes, anio, hora, minuto, segundo);
-        writer.write(log);  // Escribir la línea en el archivo
-    } catch (IOException e) {
-        e.printStackTrace();  // Manejar error de escritura
+        try (Connection conn = DatabaseConnection.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, correo);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                int id = rs.getInt("Id");
+                String correoCliente = rs.getString("correo");
+                String telf = rs.getString("telf_contacto");
+                byte plan = rs.getByte("plan_id");
+
+                cliente = new Cliente(id, correoCliente, telf, plan);
+            }
+        } catch (SQLException ex) {
+            System.err.println("Error al consultar la base de datos: " + ex.getMessage());
+        }
+
+        return cliente;
     }
-}
-    
+
+    protected void registroLogin(String usuario) {
+        Cliente c = obtenerClientePorCorreo(usuario);
+
+        if (c != null) {
+            GregorianCalendar calendario = new GregorianCalendar();
+            int anio = calendario.get(Calendar.YEAR);
+            int mes = calendario.get(Calendar.MONTH) + 1; // Los meses empiezan en 0
+            int dia = calendario.get(Calendar.DAY_OF_MONTH);
+            int hora = calendario.get(Calendar.HOUR_OF_DAY);
+            int minuto = calendario.get(Calendar.MINUTE);
+            int segundo = calendario.get(Calendar.SECOND);
+
+            String fechaHoraLogin = String.format("%d-%02d-%02d %02d:%02d:%02d", anio, mes, dia, hora, minuto, segundo);
+
+            // Obtener la dirección IP pública
+            String direccionIP = obtenerDireccionIPPublica();
+
+            // Insertar el registro de login
+            String insertSql = "INSERT INTO login (idCliente, fechaHoraLogin, direccionIP) VALUES (?, ?, ?)";
+
+            try (Connection conn = DatabaseConnection.connect(); PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                insertStmt.setInt(1, c.getId());
+                insertStmt.setString(2, fechaHoraLogin);
+                insertStmt.setString(3, direccionIP);
+
+                int rowsAffected = insertStmt.executeUpdate();
+
+                if (rowsAffected > 0) {
+                    System.out.println("Login registrado correctamente.");
+                } else {
+                    System.out.println("Error: No se pudo registrar el login.");
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            System.out.println("Error: Usuario no encontrado.");
+        }
+    }
+
+    private String obtenerDireccionIPPublica() {
+        try {
+            URL url = new URL("http://checkip.amazonaws.com");
+            try (Scanner scanner = new Scanner(url.openStream())) {
+                return scanner.nextLine().trim();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "Desconocida"; // Valor por defecto si no se puede obtener la IP
+        }
+    }
+
     /**
      * Maneja la acción del botón de inicio de sesión. Valida las credenciales y
      * redirige al usuario o muestra un mensaje de error.
      *
      * @param evt Evento de acción del botón.
      */
-    private void botonLoginActionPerformed(java.awt.event.ActionEvent evt) {
+    protected void botonLoginActionPerformed(ActionEvent evt) {
         boolean esValido;
         String correo = null, pass;
 
         try {
             correo = vista.userForm.getText();
             pass = new String(vista.passForm.getPassword());
-            esValido = correoCorrecto(correo, pass);
+            esValido = correoCorrecto(correo, pass);  // Validamos en la base de datos
         } catch (NullPointerException e) {
             esValido = false;
         }
@@ -157,8 +199,8 @@ public class LoginController {
 
         if (esValido) {
             try {
-                irAInicio(correo);
-                registroLogin(correo);
+                irAInicio(correo);  // Redirigir al usuario al inicio
+                registroLogin(correo);  // Registrar el login en la base de datos
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -167,41 +209,31 @@ public class LoginController {
 
     /**
      * Valida si las credenciales ingresadas (correo y contraseña) coinciden con
-     * las almacenadas.
+     * las almacenadas en la base de datos.
      *
      * @param correo Correo ingresado por el usuario.
      * @param contra Contraseña ingresada por el usuario.
      * @return `true` si las credenciales son correctas, de lo contrario
      * `false`.
      */
-    private static boolean correoCorrecto(String correo, String contra) {
-        BufferedReader fich = null;
-        String linea;
+    protected static boolean correoCorrecto(String correo, String contra) {
+        String sql = "SELECT correo, password FROM clientes WHERE correo = ? AND password = ?";
         boolean existeCombo = false;
 
-        try {
-            fich = new BufferedReader(new InputStreamReader(new FileInputStream("clientes.txt")));
-            linea = fich.readLine();
+        try (Connection conn = DatabaseConnection.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, correo);
+            pstmt.setString(2, contra);
 
-            while (linea != null && !existeCombo) {
-                existeCombo = linea.equals(correo + ":" + contra); // Compara correo y contraseña.
-                linea = fich.readLine();
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                existeCombo = true;  // Si hay un resultado, las credenciales son correctas
             }
-        } catch (FileNotFoundException ex) {
-            System.out.println(ex);
-        } catch (IOException ex) {
-            System.out.println(ex);
-        } finally {
-            if (fich != null) {
-                try {
-                    fich.close();
-                } catch (IOException ex) {
-                    System.out.println(ex);
-                }
-            }
+
+        } catch (SQLException ex) {
+            System.out.println("Error al consultar la base de datos: " + ex.getMessage());
         }
 
         return existeCombo;
     }
-
 }

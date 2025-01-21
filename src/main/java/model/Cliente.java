@@ -73,6 +73,7 @@ public class Cliente {
         return plan;
     }
 
+    
     /**
      * Método para calcular el almacenamiento restante del cliente. Este método
      * aún no está implementado y lanza una excepción si se llama.
