@@ -38,7 +38,7 @@ import view.Login;
  */
 public class InicioController {
 
-    private static final String RAIZBUCKET = "E:/DAM2/DI";
+    private static final String RAIZBUCKET = "R:/DAM2/DI";
     private Inicio vista;
     private String dirActual;
     private Cliente clienteActual;
@@ -203,7 +203,7 @@ public class InicioController {
 
         vista.jFileChooser2.addActionListener(evt -> {
             String actionCommand = evt.getActionCommand();
-            Cliente clienteActual = obtenerClienteActual();  // Asume que existe un método que devuelve el cliente autenticado
+            Cliente clienteActual = obtenerClienteActual();
             GregorianCalendar calendario = new GregorianCalendar();
             int anio = calendario.get(Calendar.YEAR);
             int mes = calendario.get(Calendar.MONTH) + 1;
@@ -257,6 +257,7 @@ public class InicioController {
             } else {
                 System.out.println("Error: No se pudo obtener el cliente actual.");
             }
+            this.listarArchivos(dirActual);
             vista.paginaSubir.setVisible(false);
         });
 
@@ -336,7 +337,7 @@ public class InicioController {
     public void subirArchivos(File[] archivos) {
         for (File archivo : archivos) {
             // Ruta de destino
-            File destino = new File("E:\\DAM2\\DI\\36\\" + archivo.getName());
+            File destino = new File(dirActual + File.separator + archivo.getName());
 
             // Asegurarse de que el directorio de destino existe
             if (!destino.getParentFile().exists()) {
@@ -358,6 +359,7 @@ public class InicioController {
                 e.printStackTrace();
             }
         }
+        System.out.println("pon");
     }
 
     /**
@@ -399,7 +401,7 @@ public class InicioController {
         vista.barraProg.setString(porcentaje + "% ocupado");
         vista.barraProg.repaint();
     }
-    
+
     /**
      * Calcula el tamaño total de un directorio y sus subdirectorios de manera
      * recursiva.
