@@ -2,9 +2,20 @@ package view;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.FileInputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
+import net.sf.jasperreports.engine.JasperCompileManager;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.engine.JasperReport;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  * Clase que representa la ventana principal de la aplicación. Proporciona la
@@ -14,6 +25,8 @@ import javax.swing.JScrollBar;
  * @author CDC
  */
 public class Inicio extends javax.swing.JFrame {
+
+    public Integer clientId;
 
     /**
      * Constructor de la clase. Inicializa los componentes gráficos y configura
@@ -83,6 +96,7 @@ public class Inicio extends javax.swing.JFrame {
         botonFavoritos = new javax.swing.JButton();
         botonSubir = new javax.swing.JButton();
         botonAyuda = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList<>();
 
@@ -201,6 +215,13 @@ public class Inicio extends javax.swing.JFrame {
         botonAyuda.setToolTipText("Ayuda");
         botonAyuda.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
+        jButton1.setText("Generar Reporte");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelInferiorLayout = new javax.swing.GroupLayout(panelInferior);
         panelInferior.setLayout(panelInferiorLayout);
         panelInferiorLayout.setHorizontalGroup(
@@ -214,17 +235,22 @@ public class Inicio extends javax.swing.JFrame {
                 .addComponent(botonInicio)
                 .addGap(18, 18, 18)
                 .addComponent(botonSubir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(55, 55, 55)
+                .addComponent(jButton1))
         );
         panelInferiorLayout.setVerticalGroup(
             panelInferiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelInferiorLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(5, 5, 5)
                 .addGroup(panelInferiorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(botonInicio)
                     .addComponent(botonFavoritos)
                     .addComponent(botonSubir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(botonAyuda, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
+            .addGroup(panelInferiorLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton1)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -276,6 +302,29 @@ public class Inicio extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnMenuActionPerformed
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        try {
+            Class.forName("org.gjt.mm.mysql.Driver");
+            Connection conn = DriverManager.getConnection("jdbc:mysql://192.168.13.22/entercloud", "raul", "raul");
+            String reportpath = "C:\\Users\\DAM2\\JaspersoftWorkspace\\MyReports\\Blank_A4.jrxml";
+            JasperReport jr = JasperCompileManager.compileReport(new FileInputStream(reportpath));
+
+            JasperReport subJR = JasperCompileManager.compileReport(new FileInputStream("C:\\Users\\DAM2\\JaspersoftWorkspace\\MyReports\\subidas.jrxml"));
+
+            JasperReport descJR = JasperCompileManager.compileReport(new FileInputStream("C:\\Users\\DAM2\\JaspersoftWorkspace\\MyReports\\descargas.jrxml"));
+
+            Map<String, Object> parametros = new HashMap<>();
+            parametros.put("id_cliente", this.clientId);
+            parametros.put("sub", subJR);
+            parametros.put("desc", descJR);
+
+            JasperPrint jp = JasperFillManager.fillReport(jr, parametros, conn);
+            JasperViewer.viewReport(jp);
+            conn.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        }    }//GEN-LAST:event_jButton1ActionPerformed
+
     private void configurarMenuUsuario() {
         // Configura el layout del menú
         menuUsuario.setLayout(new javax.swing.BoxLayout(menuUsuario, javax.swing.BoxLayout.Y_AXIS));
@@ -314,6 +363,7 @@ public class Inicio extends javax.swing.JFrame {
     public javax.swing.JButton botonSubir;
     public javax.swing.JButton btnCerrarSesion;
     public javax.swing.JButton btnMenu;
+    public javax.swing.JButton jButton1;
     public javax.swing.JFileChooser jFileChooser2;
     public javax.swing.JLabel jLabel1;
     public javax.swing.JList<String> jList1;

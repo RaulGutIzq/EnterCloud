@@ -54,7 +54,7 @@ public class InicioController {
         dirActual = (RAIZBUCKET + "/" + c.getId()).replace('/', File.separatorChar);
         listarArchivos(dirActual);
         this.clienteActual = c;
-
+        vista.clientId=clienteActual.getId();
         vista.jList1.setCellRenderer(new CustomRenderer());
         vista.barraProg.setStringPainted(true);
 
