@@ -319,7 +319,7 @@ public class Inicio extends javax.swing.JFrame {
             parametros.put("desc", descJR);
 
             JasperPrint jp = JasperFillManager.fillReport(jr, parametros, conn);
-            JasperViewer.viewReport(jp);
+            JasperViewer.viewReport(jp,false);
             conn.close();
         } catch (Exception e) {
             JOptionPane.showMessageDialog(null, e);
