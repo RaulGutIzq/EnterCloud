@@ -306,12 +306,12 @@ public class Inicio extends javax.swing.JFrame {
         try {
             Class.forName("org.gjt.mm.mysql.Driver");
             Connection conn = DriverManager.getConnection("jdbc:mysql://192.168.13.22/entercloud", "raul", "raul");
-            String reportpath = "C:\\Users\\DAM2\\JaspersoftWorkspace\\MyReports\\Blank_A4.jrxml";
+            String reportpath = "reports\\reportes.jrxml";
             JasperReport jr = JasperCompileManager.compileReport(new FileInputStream(reportpath));
 
-            JasperReport subJR = JasperCompileManager.compileReport(new FileInputStream("C:\\Users\\DAM2\\JaspersoftWorkspace\\MyReports\\subidas.jrxml"));
+            JasperReport subJR = JasperCompileManager.compileReport(new FileInputStream("reports\\subidas.jrxml"));
 
-            JasperReport descJR = JasperCompileManager.compileReport(new FileInputStream("C:\\Users\\DAM2\\JaspersoftWorkspace\\MyReports\\descargas.jrxml"));
+            JasperReport descJR = JasperCompileManager.compileReport(new FileInputStream("reports\\descargas.jrxml"));
 
             Map<String, Object> parametros = new HashMap<>();
             parametros.put("id_cliente", this.clientId);
