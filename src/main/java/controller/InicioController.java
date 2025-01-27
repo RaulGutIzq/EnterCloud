@@ -38,7 +38,7 @@ import view.Login;
  */
 public class InicioController {
 
-    private static final String RAIZBUCKET = "R:/DAM2/DI";
+    private static final String RAIZBUCKET = "E:/DAM2/DI";
     private Inicio vista;
     private String dirActual;
     private Cliente clienteActual;
