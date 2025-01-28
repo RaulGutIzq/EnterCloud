@@ -38,9 +38,13 @@ NGM1YWE4Ow==]]>
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 		<parameter name="id_cliente" class="java.lang.Integer"/>
 		<queryString>
-			<![CDATA[SELECT l.fechaHoraLogin fl, direccionIP ip
-FROM login l
+			<![CDATA[SELECT l.fechaHoraLogin fl, direccionIP ip,
+s.fechaHoraLogin sl, s.nombreFichero snf,
+d.fechaHoraLogin sd, d.nombreFichero dnf
+FROM login l, descargas d, subidas s
 WHERE l.idCliente = $P{id_cliente}
+AND  d.idCliente = $P{id_cliente}
+AND  s.idCliente = $P{id_cliente}
   AND MONTH(l.fechaHoraLogin) = MONTH(CURRENT_DATE())
   AND YEAR(l.fechaHoraLogin) = YEAR(CURRENT_DATE());]]>
 		</queryString>
@@ -53,6 +57,26 @@ WHERE l.idCliente = $P{id_cliente}
 			<property name="com.jaspersoft.studio.field.name" value="direccionIP"/>
 			<property name="com.jaspersoft.studio.field.label" value="ip"/>
 			<property name="com.jaspersoft.studio.field.tree.path" value="login"/>
+		</field>
+		<field name="sl" class="java.sql.Timestamp">
+			<property name="com.jaspersoft.studio.field.name" value="fechaHoraLogin"/>
+			<property name="com.jaspersoft.studio.field.label" value="sl"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="subidas"/>
+		</field>
+		<field name="snf" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="nombreFichero"/>
+			<property name="com.jaspersoft.studio.field.label" value="snf"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="subidas"/>
+		</field>
+		<field name="sd" class="java.sql.Timestamp">
+			<property name="com.jaspersoft.studio.field.name" value="fechaHoraLogin"/>
+			<property name="com.jaspersoft.studio.field.label" value="sd"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="descargas"/>
+		</field>
+		<field name="dnf" class="java.lang.String">
+			<property name="com.jaspersoft.studio.field.name" value="nombreFichero"/>
+			<property name="com.jaspersoft.studio.field.label" value="dnf"/>
+			<property name="com.jaspersoft.studio.field.tree.path" value="descargas"/>
 		</field>
 	</subDataset>
 	<parameter name="id_cliente" class="java.lang.Integer"/>
@@ -106,7 +130,7 @@ WHERE
 	<detail>
 		<band height="436" splitType="Stretch">
 			<componentElement>
-				<reportElement x="260" y="180" width="250" height="90" uuid="af95247a-c477-4285-b80f-8c6d4c3075fb">
+				<reportElement x="260" y="310" width="250" height="90" uuid="af95247a-c477-4285-b80f-8c6d4c3075fb">
 					<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
 					<property name="com.jaspersoft.studio.table.style.table_header" value="Table_TH"/>
 					<property name="com.jaspersoft.studio.table.style.column_header" value="Table_CH"/>
@@ -166,17 +190,31 @@ WHERE
 				</jr:table>
 			</componentElement>
 			<subreport>
-				<reportElement x="340" y="40" width="230" height="92" uuid="de2f274a-82f0-4839-a994-462784d3c28e"/>
+				<reportElement x="340" y="100" width="230" height="92" uuid="de2f274a-82f0-4839-a994-462784d3c28e"/>
 				<parametersMapExpression><![CDATA[$P{REPORT_PARAMETERS_MAP}]]></parametersMapExpression>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA[(JasperReport)$P{sub}]]></subreportExpression>
 			</subreport>
 			<subreport>
-				<reportElement x="340" y="70" width="230" height="92" uuid="a8922b28-8021-44cc-8cd2-cf8557830f07"/>
+				<reportElement x="340" y="130" width="230" height="92" uuid="a8922b28-8021-44cc-8cd2-cf8557830f07"/>
 				<parametersMapExpression><![CDATA[$P{REPORT_PARAMETERS_MAP}]]></parametersMapExpression>
 				<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
 				<subreportExpression><![CDATA[(JasperReport)$P{desc}]]></subreportExpression>
 			</subreport>
+			<staticText>
+				<reportElement x="180" y="211" width="410" height="70" uuid="bf4f6d16-e858-4edf-a6fa-d6d96cd6161c"/>
+				<textElement textAlignment="Justified">
+					<font size="16"/>
+				</textElement>
+				<text><![CDATA[La siguiente tabla representa los inicios de sesión realizados desde su usuario, si no reconoce alguna de las IP, su cuenta podría estar comprometida.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="180" y="19" width="440" height="71" uuid="668931cd-db25-4c4b-8be2-01d61b6d7ca8"/>
+				<textElement textAlignment="Justified">
+					<font size="16"/>
+				</textElement>
+				<text><![CDATA[Estas son las subidas y descargas realizadas este mes desde su cuenta, si ve un número excesivo, puede ser que alguien este usando su cuenta sin su consentimiento.]]></text>
+			</staticText>
 		</band>
 	</detail>
 </jasperReport>
