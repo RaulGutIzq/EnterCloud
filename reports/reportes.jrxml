@@ -38,13 +38,9 @@ NGM1YWE4Ow==]]>
 		<property name="com.jaspersoft.studio.data.sql.tables" value=""/>
 		<parameter name="id_cliente" class="java.lang.Integer"/>
 		<queryString>
-			<![CDATA[SELECT l.fechaHoraLogin fl, direccionIP ip,
-s.fechaHoraLogin sl, s.nombreFichero snf,
-d.fechaHoraLogin sd, d.nombreFichero dnf
-FROM login l, descargas d, subidas s
+			<![CDATA[SELECT l.fechaHoraLogin fl, direccionIP ip
+FROM login l
 WHERE l.idCliente = $P{id_cliente}
-AND  d.idCliente = $P{id_cliente}
-AND  s.idCliente = $P{id_cliente}
   AND MONTH(l.fechaHoraLogin) = MONTH(CURRENT_DATE())
   AND YEAR(l.fechaHoraLogin) = YEAR(CURRENT_DATE());]]>
 		</queryString>
@@ -57,26 +53,6 @@ AND  s.idCliente = $P{id_cliente}
 			<property name="com.jaspersoft.studio.field.name" value="direccionIP"/>
 			<property name="com.jaspersoft.studio.field.label" value="ip"/>
 			<property name="com.jaspersoft.studio.field.tree.path" value="login"/>
-		</field>
-		<field name="sl" class="java.sql.Timestamp">
-			<property name="com.jaspersoft.studio.field.name" value="fechaHoraLogin"/>
-			<property name="com.jaspersoft.studio.field.label" value="sl"/>
-			<property name="com.jaspersoft.studio.field.tree.path" value="subidas"/>
-		</field>
-		<field name="snf" class="java.lang.String">
-			<property name="com.jaspersoft.studio.field.name" value="nombreFichero"/>
-			<property name="com.jaspersoft.studio.field.label" value="snf"/>
-			<property name="com.jaspersoft.studio.field.tree.path" value="subidas"/>
-		</field>
-		<field name="sd" class="java.sql.Timestamp">
-			<property name="com.jaspersoft.studio.field.name" value="fechaHoraLogin"/>
-			<property name="com.jaspersoft.studio.field.label" value="sd"/>
-			<property name="com.jaspersoft.studio.field.tree.path" value="descargas"/>
-		</field>
-		<field name="dnf" class="java.lang.String">
-			<property name="com.jaspersoft.studio.field.name" value="nombreFichero"/>
-			<property name="com.jaspersoft.studio.field.label" value="dnf"/>
-			<property name="com.jaspersoft.studio.field.tree.path" value="descargas"/>
 		</field>
 	</subDataset>
 	<parameter name="id_cliente" class="java.lang.Integer"/>
@@ -109,7 +85,7 @@ WHERE
 		<band splitType="Stretch"/>
 	</background>
 	<columnHeader>
-		<band height="90" splitType="Stretch">
+		<band height="97" splitType="Stretch">
 			<property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.FreeLayout"/>
 			<staticText>
 				<reportElement x="260" y="60" width="270" height="30" uuid="5eaeffa5-cf03-42e1-9a2b-617a1cda259b"/>
@@ -149,14 +125,12 @@ WHERE
 								<text><![CDATA[Logins efectuados este mes]]></text>
 							</staticText>
 						</jr:tableHeader>
-						<jr:tableFooter style="Table_TH" height="30" rowSpan="1"/>
 						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="120" height="30" uuid="44dbce62-5346-4124-a0b3-bacadc80ef4b"/>
 								<text><![CDATA[Fecha]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:columnFooter style="Table_CH" height="30" rowSpan="1"/>
 						<jr:detailCell style="Table_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="120" height="30" uuid="249eaf01-7c30-4d0c-a3c9-eb16979012db"/>
@@ -172,14 +146,12 @@ WHERE
 								<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
 							</textField>
 						</jr:tableHeader>
-						<jr:tableFooter style="Table_TH" height="30" rowSpan="1"/>
 						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 							<staticText>
 								<reportElement x="0" y="0" width="210" height="30" uuid="5357cd57-29a6-4a59-9c19-bdf6cfb5a2dd"/>
 								<text><![CDATA[IP]]></text>
 							</staticText>
 						</jr:columnHeader>
-						<jr:columnFooter style="Table_CH" height="30" rowSpan="1"/>
 						<jr:detailCell style="Table_TD" height="30">
 							<textField>
 								<reportElement x="0" y="0" width="210" height="30" uuid="f485cc8a-6cb2-498d-9eb9-6090f2aab41a"/>
