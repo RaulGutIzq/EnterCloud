@@ -23,7 +23,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import model.Cliente;
 import model.DatabaseConnection;
-import view.Ayuda;
 import view.AyudaDialog;
 import view.CustomRenderer;
 import view.Inicio;
@@ -68,7 +67,7 @@ public class InicioController {
         vista.jPanel1.getActionMap().put("showHelp", new javax.swing.AbstractAction() {
             @Override
             public void actionPerformed(java.awt.event.ActionEvent e) {
-                Ayuda a = new Ayuda();
+                AyudaDialog a = new AyudaDialog(vista);
                 a.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
                 a.setVisible(true);
             }
