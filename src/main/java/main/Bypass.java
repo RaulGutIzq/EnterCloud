@@ -14,9 +14,22 @@ import view.Inicio;
  */
 public class Bypass {
 
+    /**
+     *
+     * @param args
+     */
     public static void main(String[] args) {
         Inicio v = new Inicio();
         InicioController c = new InicioController(v, new Cliente(1, "raul@raul.com", "666666666", (byte) 1));
         v.setVisible(true);
     }
 }
+
+/*
+
+menu ayuda en medio
+menu subida y descarga en el centro de la pantalla
+los 3 menus tamaño fijo
+los 3 menus dejan inusable inicio.java hasta que se cierren
+
+*/

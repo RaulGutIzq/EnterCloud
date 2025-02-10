@@ -124,6 +124,10 @@ public class LoginController {
         return cliente;
     }
 
+    /**
+     *
+     * @param usuario
+     */
     protected void registroLogin(String usuario) {
         Cliente c = obtenerClientePorCorreo(usuario);
 

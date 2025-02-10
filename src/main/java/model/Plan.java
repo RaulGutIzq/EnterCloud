@@ -8,6 +8,10 @@
  */
 package model;
 
+/**
+ *
+ * @author DAM2
+ */
 public class Plan {
 
     // Identificador único del plan

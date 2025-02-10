@@ -26,6 +26,9 @@ import net.sf.jasperreports.view.JasperViewer;
  */
 public class Inicio extends javax.swing.JFrame {
 
+    /**
+     *
+     */
     public Integer clientId;
 
     /**
@@ -51,6 +54,11 @@ public class Inicio extends javax.swing.JFrame {
         menuUsuario.add(btnCerrarSesion);
         // Agregar la barra de progreso al menú
 
+        
+        botonInicio.setToolTipText("Ir a la página de inicio");
+        botonFavoritos.setToolTipText("Ver tus archivos favoritos");
+        botonSubir.setToolTipText("Subir archivos a la nube");
+        botonAyuda.setToolTipText("Obtener ayuda sobre la aplicación");
         // Establecer texto inicial de los elementos del menú
         lblAlmacenamiento.setText("Almacenamiento: ");
         btnCerrarSesion.setText("Cerrar Sesión");

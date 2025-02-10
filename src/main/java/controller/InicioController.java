@@ -24,6 +24,7 @@ import javax.swing.JOptionPane;
 import model.Cliente;
 import model.DatabaseConnection;
 import view.Ayuda;
+import view.AyudaDialog;
 import view.CustomRenderer;
 import view.Inicio;
 import view.Login;
@@ -54,7 +55,7 @@ public class InicioController {
         dirActual = (RAIZBUCKET + "/" + c.getId()).replace('/', File.separatorChar);
         listarArchivos(dirActual);
         this.clienteActual = c;
-        vista.clientId=clienteActual.getId();
+        vista.clientId = clienteActual.getId();
         vista.jList1.setCellRenderer(new CustomRenderer());
         vista.barraProg.setStringPainted(true);
 
@@ -76,9 +77,9 @@ public class InicioController {
 
         vista.botonAyuda.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                Ayuda a = new Ayuda();
-                a.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-                a.setVisible(true);
+                // Usa "vista" como la ventana padre (asumiendo que "vista" es una instancia de Inicio)
+                AyudaDialog dialog = new AyudaDialog(vista); // "vista" es la instancia de Inicio
+                dialog.setVisible(true);
             }
         });
 
@@ -332,7 +333,7 @@ public class InicioController {
     /**
      * Realiza la subida de los archivos seleccionados al directorio actual.
      *
-     * @param selectedFiles Los archivos seleccionados para subir.
+     * @param archivos Los archivos seleccionados para subir.
      */
     public void subirArchivos(File[] archivos) {
         for (File archivo : archivos) {
@@ -381,6 +382,11 @@ public class InicioController {
         return String.format("%.2f", espacioOcupado / (1024.0 * 1024.0 * 1024.0)); // Convertir bytes a GB
     }
 
+    /**
+     *
+     * @param usado
+     * @param total
+     */
     public void actualizarAlmacenamiento(int usado, int total) {
         int porcentaje = (int) ((usado / (double) total) * 100);
         vista.barraProg.setValue(porcentaje);
@@ -595,6 +601,10 @@ public class InicioController {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public Cliente obtenerClienteActual() {
         return this.clienteActual;  // Devuelve el cliente que fue asignado en el constructor
     }

@@ -24,6 +24,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/**
+ *
+ * @author DAM2
+ */
 public class PlanesDAO {
 
     // Flujos para manejar la entrada y salida de datos binarios
