@@ -2,6 +2,7 @@ package view;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.File;
 import java.io.FileInputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -11,6 +12,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollBar;
+import model.DatabaseConnection;
 import net.sf.jasperreports.engine.JasperCompileManager;
 import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
@@ -312,14 +314,13 @@ public class Inicio extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
-            Class.forName("org.gjt.mm.mysql.Driver");
-            Connection conn = DriverManager.getConnection("jdbc:mysql://192.168.13.22/entercloud", "raul", "raul");
-            String reportpath = "reports\\reportes.jrxml";
-            JasperReport jr = JasperCompileManager.compileReport(new FileInputStream(reportpath));
+            Connection conn = DatabaseConnection.connect();
+            
+            JasperReport jr = JasperCompileManager.compileReport(getClass().getResourceAsStream("/reports/reportes.jrxml"));
 
-            JasperReport subJR = JasperCompileManager.compileReport(new FileInputStream("reports\\subidas.jrxml"));
+            JasperReport subJR = JasperCompileManager.compileReport(getClass().getResourceAsStream("/reports/subidas.jrxml"));
 
-            JasperReport descJR = JasperCompileManager.compileReport(new FileInputStream("reports\\descargas.jrxml"));
+            JasperReport descJR = JasperCompileManager.compileReport(getClass().getResourceAsStream("/reports/descargas.jrxml"));
 
             Map<String, Object> parametros = new HashMap<>();
             parametros.put("id_cliente", this.clientId);

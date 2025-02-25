@@ -16,6 +16,8 @@ import java.sql.SQLException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Controlador para manejar la lógica de la pantalla de inicio de sesión.
@@ -26,7 +28,7 @@ import java.util.Scanner;
  * @author CDC
  */
 public class LoginController {
-
+    
     private static final String RAIZBUCKET = "E:/DAM2/DI"; // Ruta raíz para almacenar datos del usuario.
     private Login vista; // Vista para la pantalla de inicio de sesión.
 
@@ -42,19 +44,19 @@ public class LoginController {
         // Configuración de eventos de la vista
         vista.jPanel1.setFocusable(true);
         vista.jPanel1.requestFocusInWindow();
-
+        
         vista.userForm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 vista.userForm.setText("");
             }
         });
-
+        
         vista.passForm.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 vista.passForm.setText("");
             }
         });
-
+        
         vista.jButton1.addActionListener(evt -> botonLoginActionPerformed(evt));
         vista.getRootPane().setDefaultButton(vista.jButton1); // Define el botón de inicio de sesión como predeterminado.
     }
@@ -73,7 +75,7 @@ public class LoginController {
             // Crea el directorio raíz del usuario si no existe.
             File raizUser = new File((RAIZBUCKET + "/" + c.getId()).replace('/', File.separatorChar));
             if (!raizUser.exists()) {
-                if (!raizUser.mkdir()) {
+                if (!raizUser.mkdirs()) {
                     throw new IOException("No se ha podido crear la raiz del usuario: " + c.getId());
                 }
             }
@@ -104,23 +106,23 @@ public class LoginController {
     private Cliente obtenerClientePorCorreo(String correo) {
         String sql = "SELECT Id, correo, telf_contacto, plan_id FROM clientes WHERE correo = ?";
         Cliente cliente = null;
-
+        
         try (Connection conn = DatabaseConnection.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, correo);
             ResultSet rs = pstmt.executeQuery();
-
+            
             if (rs.next()) {
                 int id = rs.getInt("Id");
                 String correoCliente = rs.getString("correo");
                 String telf = rs.getString("telf_contacto");
                 byte plan = rs.getByte("plan_id");
-
+                
                 cliente = new Cliente(id, correoCliente, telf, plan);
             }
         } catch (SQLException ex) {
             System.err.println("Error al consultar la base de datos: " + ex.getMessage());
         }
-
+        
         return cliente;
     }
 
@@ -130,7 +132,7 @@ public class LoginController {
      */
     protected void registroLogin(String usuario) {
         Cliente c = obtenerClientePorCorreo(usuario);
-
+        
         if (c != null) {
             GregorianCalendar calendario = new GregorianCalendar();
             int anio = calendario.get(Calendar.YEAR);
@@ -139,7 +141,7 @@ public class LoginController {
             int hora = calendario.get(Calendar.HOUR_OF_DAY);
             int minuto = calendario.get(Calendar.MINUTE);
             int segundo = calendario.get(Calendar.SECOND);
-
+            
             String fechaHoraLogin = String.format("%d-%02d-%02d %02d:%02d:%02d", anio, mes, dia, hora, minuto, segundo);
 
             // Obtener la dirección IP pública
@@ -147,14 +149,14 @@ public class LoginController {
 
             // Insertar el registro de login
             String insertSql = "INSERT INTO login (idCliente, fechaHoraLogin, direccionIP) VALUES (?, ?, ?)";
-
+            
             try (Connection conn = DatabaseConnection.connect(); PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
                 insertStmt.setInt(1, c.getId());
                 insertStmt.setString(2, fechaHoraLogin);
                 insertStmt.setString(3, direccionIP);
-
+                
                 int rowsAffected = insertStmt.executeUpdate();
-
+                
                 if (rowsAffected > 0) {
                     System.out.println("Login registrado correctamente.");
                 } else {
@@ -167,7 +169,7 @@ public class LoginController {
             System.out.println("Error: Usuario no encontrado.");
         }
     }
-
+    
     private String obtenerDireccionIPPublica() {
         try {
             URL url = new URL("http://checkip.amazonaws.com");
@@ -189,7 +191,7 @@ public class LoginController {
     protected void botonLoginActionPerformed(ActionEvent evt) {
         boolean esValido;
         String correo = null, pass;
-
+        
         try {
             correo = vista.userForm.getText();
             pass = new String(vista.passForm.getPassword());
@@ -197,10 +199,10 @@ public class LoginController {
         } catch (NullPointerException e) {
             esValido = false;
         }
-
+        
         vista.mensajeError.setVisible(!esValido); // Muestra un mensaje de error si las credenciales no son válidas.
         vista.setVisible(!esValido);
-
+        
         if (esValido) {
             try {
                 irAInicio(correo);  // Redirigir al usuario al inicio
@@ -223,21 +225,21 @@ public class LoginController {
     protected static boolean correoCorrecto(String correo, String contra) {
         String sql = "SELECT correo, password FROM clientes WHERE correo = ? AND password = ?";
         boolean existeCombo = false;
-
+        
         try (Connection conn = DatabaseConnection.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, correo);
             pstmt.setString(2, contra);
-
+            
             ResultSet rs = pstmt.executeQuery();
-
+            
             if (rs.next()) {
                 existeCombo = true;  // Si hay un resultado, las credenciales son correctas
             }
-
+            
         } catch (SQLException ex) {
             System.out.println("Error al consultar la base de datos: " + ex.getMessage());
         }
-
+        
         return existeCombo;
     }
 }

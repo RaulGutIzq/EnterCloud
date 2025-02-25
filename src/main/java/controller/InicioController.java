@@ -1,5 +1,6 @@
 package controller;
 
+import java.awt.Color;
 import java.awt.Cursor;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -57,7 +58,8 @@ public class InicioController {
         vista.clientId = clienteActual.getId();
         vista.jList1.setCellRenderer(new CustomRenderer());
         vista.barraProg.setStringPainted(true);
-
+        vista.jButton1.setBackground(new Color(2, 34, 57));  // Azul acero
+        vista.jButton1.setForeground(Color.WHITE);
         vista.jPanel1.setFocusable(true); // Asegurarte de que el panel sea enfocable
         vista.jPanel1.requestFocusInWindow(); // Solicitar el foco para el panel
         vista.jPanel1.getInputMap(javax.swing.JComponent.WHEN_IN_FOCUSED_WINDOW)

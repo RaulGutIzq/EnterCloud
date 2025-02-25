@@ -15,9 +15,9 @@ import java.sql.SQLException;
 public class DatabaseConnection {
     
     // Cambia estos valores según tu configuración
-    private static final String URL = "jdbc:mysql://192.168.13.22:3306/ENTERCLOUD";
-    private static final String USER = "dani"; // Tu usuario de MySQL
-    private static final String PASSWORD = "dani"; // Tu contraseña de MySQL
+    private static final String URL = "jdbc:mysql://212.169.199.145:3306/ENTERCLOUD";
+    private static final String USER = "entercloud"; // Tu usuario de MySQL
+    private static final String PASSWORD = "entercloud"; // Tu contraseña de MySQL
 
     /**
      * Establece la conexión con la base de datos utilizando los parámetros configurados.
